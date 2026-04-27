@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Variável</title>
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -736,11 +737,7 @@ let currentUser = { name: 'Desconhecido', email: '' };
 
 async function initMSAL() {
   try {
-    const script = document.createElement('script');
-    script.src = 'https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js';
-    document.head.appendChild(script);
-    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; });
-
+    if (typeof msal === 'undefined') throw new Error('MSAL library not loaded');
     msalApp = new msal.PublicClientApplication(MSAL_CFG);
     await msalApp.initialize();
 
@@ -2034,7 +2031,8 @@ function init() {
     }
   }).catch(e => {
     console.warn('MSAL init error:', e);
-    toast('Modo offline — dados locais', 'error');
+    showSPStatus('Erro de autenticação: ' + e.message + ' — funcionando offline');
+    setTimeout(hideSPStatus, 5000);
   });
 }
 
