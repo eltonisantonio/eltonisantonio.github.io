@@ -735,26 +735,48 @@ let spToken = null;
 let currentUser = { name: 'Desconhecido', email: '' };
 
 async function initMSAL() {
-  const script = document.createElement('script');
-  script.src = 'https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js';
-  document.head.appendChild(script);
-  await new Promise(r => script.onload = r);
-  msalApp = new msal.PublicClientApplication(MSAL_CFG);
-  await msalApp.handleRedirectPromise();
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length === 0) {
-    await msalApp.loginRedirect({ scopes: [SP_SCOPE] });
-    return false;
-  }
-  currentUser = { name: accounts[0].name || accounts[0].username, email: accounts[0].username };
   try {
-    const res = await msalApp.acquireTokenSilent({ scopes: [SP_SCOPE], account: accounts[0] });
-    spToken = res.accessToken;
+    const script = document.createElement('script');
+    script.src = 'https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js';
+    document.head.appendChild(script);
+    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; });
+
+    msalApp = new msal.PublicClientApplication(MSAL_CFG);
+    await msalApp.initialize();
+
+    // Handle redirect response first
+    const redirectResult = await msalApp.handleRedirectPromise();
+    if (redirectResult) {
+      spToken = redirectResult.accessToken;
+      currentUser = { name: redirectResult.account.name || redirectResult.account.username, email: redirectResult.account.username };
+      return true;
+    }
+
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length === 0) {
+      // No user logged in — redirect to login
+      showSPStatus('Redirecionando para login Microsoft...');
+      await msalApp.loginRedirect({ scopes: [SP_SCOPE] });
+      return false;
+    }
+
+    // Try silent token acquisition
+    try {
+      const res = await msalApp.acquireTokenSilent({ scopes: [SP_SCOPE], account: accounts[0] });
+      spToken = res.accessToken;
+      currentUser = { name: accounts[0].name || accounts[0].username, email: accounts[0].username };
+      return true;
+    } catch(e) {
+      // Silent failed — redirect
+      showSPStatus('Autenticando...');
+      await msalApp.acquireTokenRedirect({ scopes: [SP_SCOPE], account: accounts[0] });
+      return false;
+    }
   } catch(e) {
-    await msalApp.acquireTokenRedirect({ scopes: [SP_SCOPE] });
+    console.warn('MSAL init error:', e);
+    hideSPStatus();
     return false;
   }
-  return true;
 }
 
 async function spRequest(method, url, body) {
@@ -1138,7 +1160,14 @@ function salvarFaturamento() {
 
 function getFaturamento() {
   const pkey = getPeriodKey();
-  return (db.faturamento[pkey] ?? 0) / 100; // retorna como decimal (ex: 0.08)
+  return (db.faturamento[pkey] ?? 0) / 100;
+}
+
+function carregarFaturamentoCampo() {
+  const pkey = getPeriodKey();
+  const v = db.faturamento?.[pkey];
+  const el = document.getElementById('fat-valor');
+  if (el) { el.value = v !== undefined ? v : ''; previewFaturamento(); }
 }
 
 function savePeriod() {
@@ -1146,6 +1175,7 @@ function savePeriod() {
   db.periodo.ano = parseInt(document.getElementById('sel-ano').value);
   saveDB(db);
   updatePeriodDisplay();
+  carregarFaturamentoCampo();
   toast('Período atualizado!');
   if (currentSetor) renderLancamento(currentSetor, currentTurno);
 }
