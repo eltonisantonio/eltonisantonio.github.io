@@ -719,16 +719,105 @@ tr:hover td { background: rgba(255,255,255,0.018); }
 
 <script>
 // ════════════════════════════════════════════
-//  DATA LAYER
+//  SHAREPOINT CONFIG
+// ════════════════════════════════════════════
+const SP_SITE    = 'https://grupoambaramaral.sharepoint.com/sites/SiteRaguife';
+const CLIENT_ID  = 'df1bc996-7d90-4c65-a176-f0da5d449d9d';
+const TENANT_ID  = '02f96fec-5257-4b48-8200-27954582e479';
+const SP_SCOPE   = 'https://grupoambaramaral.sharepoint.com/.default';
+const MSAL_CFG   = {
+  auth: { clientId: CLIENT_ID, authority: `https://login.microsoftonline.com/${TENANT_ID}`, redirectUri: window.location.href.split('?')[0] },
+  cache: { cacheLocation: 'sessionStorage' }
+};
+
+let msalApp = null;
+let spToken = null;
+let currentUser = { name: 'Desconhecido', email: '' };
+
+async function initMSAL() {
+  const script = document.createElement('script');
+  script.src = 'https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js';
+  document.head.appendChild(script);
+  await new Promise(r => script.onload = r);
+  msalApp = new msal.PublicClientApplication(MSAL_CFG);
+  await msalApp.handleRedirectPromise();
+  const accounts = msalApp.getAllAccounts();
+  if (accounts.length === 0) {
+    await msalApp.loginRedirect({ scopes: [SP_SCOPE] });
+    return false;
+  }
+  currentUser = { name: accounts[0].name || accounts[0].username, email: accounts[0].username };
+  try {
+    const res = await msalApp.acquireTokenSilent({ scopes: [SP_SCOPE], account: accounts[0] });
+    spToken = res.accessToken;
+  } catch(e) {
+    await msalApp.acquireTokenRedirect({ scopes: [SP_SCOPE] });
+    return false;
+  }
+  return true;
+}
+
+async function spRequest(method, url, body) {
+  const res = await fetch(SP_SITE + `/_api/web/lists/getbytitle('${url}')`, {
+    method, headers: {
+      'Authorization': `Bearer ${spToken}`,
+      'Accept': 'application/json;odata=nometadata',
+      'Content-Type': 'application/json;odata=nometadata',
+      'X-HTTP-Method': method !== 'POST' ? method : undefined,
+      'IF-MATCH': method === 'MERGE' ? '*' : undefined,
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok && res.status !== 204) throw new Error(`SP error ${res.status}`);
+  return res.status !== 204 ? res.json() : null;
+}
+
+async function spGetItem(listName, chave) {
+  const url = `${SP_SITE}/_api/web/lists/getbytitle('${listName}')/items?$filter=Chave eq '${encodeURIComponent(chave)}'&$top=1`;
+  const res = await fetch(url, { headers: { 'Authorization': `Bearer ${spToken}`, 'Accept': 'application/json;odata=nometadata' }});
+  const data = await res.json();
+  return data.value && data.value.length > 0 ? data.value[0] : null;
+}
+
+async function spSetItem(listName, chave, valor) {
+  const existing = await spGetItem(listName, chave);
+  const body = { Title: chave, Chave: chave, Valor: valor };
+  if (existing) {
+    await fetch(`${SP_SITE}/_api/web/lists/getbytitle('${listName}')/items(${existing.Id})`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${spToken}`, 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json;odata=nometadata', 'X-HTTP-Method': 'MERGE', 'IF-MATCH': '*' },
+      body: JSON.stringify(body)
+    });
+  } else {
+    await fetch(`${SP_SITE}/_api/web/lists/getbytitle('${listName}')/items`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${spToken}`, 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json;odata=nometadata' },
+      body: JSON.stringify(body)
+    });
+  }
+}
+
+async function spLogAccess(acao, detalhes) {
+  try {
+    await fetch(`${SP_SITE}/_api/web/lists/getbytitle('VariavelAcessos')/items`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${spToken}`, 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json;odata=nometadata' },
+      body: JSON.stringify({ Title: new Date().toISOString(), Usuario: currentUser.name, Acao: acao, Detalhes: detalhes || '' })
+    });
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════
+//  DATA LAYER — SharePoint + localStorage fallback
 // ════════════════════════════════════════════
 const DB_KEY = 'variavel_unificado_v1';
+let spReady = false;
 
 function loadDB() {
   try {
     const r = localStorage.getItem(DB_KEY);
     if (r) {
       const saved = JSON.parse(r);
-      // Garantir campos que podem estar faltando em versões antigas
       if (!saved.faturamento) saved.faturamento = {};
       if (!saved.senhas) saved.senhas = { qualidade: '', sst: '', planejamento: '' };
       if (!saved.senhas.planejamento) saved.senhas.planejamento = '';
@@ -741,7 +830,57 @@ function loadDB() {
   } catch(e) {}
   return defaultDB();
 }
-function saveDB(d) { localStorage.setItem(DB_KEY, JSON.stringify(d)); }
+
+function saveDB(d) {
+  localStorage.setItem(DB_KEY, JSON.stringify(d));
+  if (spReady) {
+    spSetItem('VariavelDados', 'db_principal', JSON.stringify(d)).catch(e => console.warn('SP save error:', e));
+  }
+}
+
+async function loadDBFromSP() {
+  try {
+    showSPStatus('Conectando ao SharePoint...');
+    const item = await spGetItem('VariavelDados', 'db_principal');
+    if (item && item.Valor) {
+      const spData = JSON.parse(item.Valor);
+      if (!spData.faturamento) spData.faturamento = {};
+      if (!spData.senhas) spData.senhas = { qualidade: '', sst: '', planejamento: '' };
+      if (!spData.senhas.planejamento) spData.senhas.planejamento = '';
+      if (!spData.sst_incidentes) spData.sst_incidentes = [];
+      if (!spData.s5) spData.s5 = {};
+      if (!spData.setores || spData.setores.length === 0) spData.setores = defaultDB().setores;
+      if (!spData.indicadores || spData.indicadores.length === 0) spData.indicadores = defaultDB().indicadores;
+      db = spData;
+      localStorage.setItem(DB_KEY, JSON.stringify(db));
+      hideSPStatus();
+      spLogAccess('Abertura', `Período: ${db.periodo.mes}/${db.periodo.ano}`);
+      return true;
+    }
+  } catch(e) {
+    console.warn('SP load error:', e);
+  }
+  hideSPStatus();
+  return false;
+}
+
+function showSPStatus(msg) {
+  let el = document.getElementById('sp-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sp-status';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#024f2b;color:#fff;text-align:center;padding:8px;font-size:13px;font-family:DM Sans,sans-serif;z-index:9999;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideSPStatus() {
+  const el = document.getElementById('sp-status');
+  if (el) el.style.display = 'none';
+}
+
 
 function defaultDB() {
   return {
@@ -1124,7 +1263,7 @@ function renderLancamento(setor, turno, funcao) {
         ${hasData?(totalAting*100).toFixed(1)+'%':'—'}</td>
     </tr></tfoot></table></div>
     <div style="margin-top:14px;">
-      <button class="btn btn-primary" onclick="saveDB(db);toast('Resultados salvos!')">Salvar</button>
+      <button class="btn btn-primary" onclick="saveDB(db);spLogAccess('Salvamento','Setor: '+currentSetor+' '+currentTurno);toast('Resultados salvos!')">Salvar</button>
       <button class="btn btn-ghost" onclick="limparTodosResultados('${pkey}','${rKey}')">Limpar tudo</button>
     </div>`;
   }
@@ -1834,10 +1973,7 @@ function init() {
   document.getElementById('sel-ano').value = db.periodo.ano;
   populateSetorSelects();
   updateFatalBanner();
-  document.querySelectorAll('.nav-item.locked').forEach(el => {
-    el.style.opacity = '';
-  });
-  // Abrir página inicial: gestores (sem senha) ou resultados (se sem senha configurada)
+  document.querySelectorAll('.nav-item.locked').forEach(el => { el.style.opacity = ''; });
   if (!db.senhas.planejamento) {
     unlocked.planejamento = true;
     showPage('resultados');
@@ -1845,6 +1981,31 @@ function init() {
   } else {
     showPage('gestores');
   }
+  // Conectar ao SharePoint em background
+  initMSAL().then(ok => {
+    if (ok) {
+      spReady = true;
+      loadDBFromSP().then(loaded => {
+        if (loaded) {
+          // Recarregar UI com dados do SharePoint
+          updatePeriodDisplay();
+          document.getElementById('sel-mes').value = db.periodo.mes;
+          document.getElementById('sel-ano').value = db.periodo.ano;
+          populateSetorSelects();
+          updateFatalBanner();
+          renderSetorChips();
+          carregarFaturamentoCampo();
+          // Mostrar usuário logado
+          const badge = document.getElementById('period-display');
+          if (badge) badge.title = `Logado: ${currentUser.name}`;
+          toast(`Conectado como ${currentUser.name.split(' ')[0]}`);
+        }
+      });
+    }
+  }).catch(e => {
+    console.warn('MSAL init error:', e);
+    toast('Modo offline — dados locais', 'error');
+  });
 }
 
 init();
