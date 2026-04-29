@@ -736,10 +736,14 @@ const firebaseConfig = {
 
 let db_fire, DOC_REF, LOG_REF;
 try {
-  firebase.initializeApp(firebaseConfig);
-  db_fire = firebase.firestore();
+  const existingApps = firebase.apps;
+  const app = existingApps.length === 0 
+    ? firebase.initializeApp(firebaseConfig) 
+    : existingApps[0];
+  db_fire = firebase.firestore(app);
   DOC_REF = db_fire.collection('sistema').doc('dados');
   LOG_REF = db_fire.collection('sistema').doc('acessos');
+  console.log('Firebase iniciado OK');
 } catch(e) {
   console.error('Firebase init error:', e);
 }
