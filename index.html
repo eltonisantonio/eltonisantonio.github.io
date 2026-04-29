@@ -858,7 +858,7 @@ async function loadDBFromSP() {
       db = spData;
       localStorage.setItem(DB_KEY, JSON.stringify(db));
       hideSPStatus();
-      spLogAccess('Abertura', `Período: ${db.periodo.mes}/${db.periodo.ano}`);
+      logAcesso('Abertura', `Período: ${db.periodo.mes}/${db.periodo.ano}`);
       return true;
     }
   } catch(e) {
@@ -1275,7 +1275,7 @@ function renderLancamento(setor, turno, funcao) {
         ${hasData?(totalAting*100).toFixed(1)+'%':'—'}</td>
     </tr></tfoot></table></div>
     <div style="margin-top:14px;">
-      <button class="btn btn-primary" onclick="saveDB(db);spLogAccess('Salvamento','Setor: '+currentSetor+' '+currentTurno);toast('Resultados salvos!')">Salvar</button>
+      <button class="btn btn-primary" onclick="saveDB(db);logAcesso('Salvamento','Setor: '+currentSetor+' '+currentTurno);toast('Resultados salvos!')">Salvar</button>
       <button class="btn btn-ghost" onclick="limparTodosResultados('${pkey}','${rKey}')">Limpar tudo</button>
     </div>`;
   }
