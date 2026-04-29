@@ -790,11 +790,24 @@ async function loadFromFirebase() {
       const data = doc.data();
       if (data.dados) {
         const fbData = migrateDB(JSON.parse(data.dados));
-        // Usar Firebase se for mais recente
-        const localUpdated = db.periodo ? 1 : 0;
         db = fbData;
         localStorage.setItem(DB_KEY, JSON.stringify(db));
         hideFBStatus();
+        // Atualizar toda a UI com dados do Firebase
+        unlocked = { qualidade: false, sst: false, planejamento: false };
+        updatePeriodDisplay();
+        document.getElementById('sel-mes').value = db.periodo.mes;
+        document.getElementById('sel-ano').value = db.periodo.ano;
+        populateSetorSelects();
+        updateFatalBanner();
+        renderSetorChips();
+        carregarFaturamentoCampo();
+        if (!db.senhas.planejamento) {
+          unlocked.planejamento = true;
+          showPage('resultados');
+        } else {
+          showPage('gestores');
+        }
         return true;
       }
     }
