@@ -6,6 +6,21 @@
 <title>Sistema Variável</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+  var firebaseCfg = {
+    apiKey: "AIzaSyDqLvQplHilhuR-NRV0yeBPdad6OlVbLpw",
+    authDomain: "sistema-variavel-raguife.firebaseapp.com",
+    projectId: "sistema-variavel-raguife",
+    storageBucket: "sistema-variavel-raguife.firebasestorage.app",
+    messagingSenderId: "783355543038",
+    appId: "1:783355543038:web:ca6b599ee436341516d4af"
+  };
+  firebase.initializeApp(firebaseCfg);
+  var db_fire = firebase.firestore();
+  var DOC_REF = db_fire.collection('sistema').doc('dados');
+  var LOG_REF = db_fire.collection('sistema').doc('acessos');
+  console.log('Firebase OK');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -722,31 +737,10 @@ tr:hover td { background: rgba(255,255,255,0.018); }
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════
-//  FIREBASE CONFIG
-// ════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDqLvQplHilhuR-NRV0yeBPdad6OlVbLpw",
-  authDomain: "sistema-variavel-raguife.firebaseapp.com",
-  projectId: "sistema-variavel-raguife",
-  storageBucket: "sistema-variavel-raguife.firebasestorage.app",
-  messagingSenderId: "783355543038",
-  appId: "1:783355543038:web:ca6b599ee436341516d4af"
-};
+// Firebase config — inicializado no <head>
 
+// Firebase será inicializado após DOMContentLoaded
 let db_fire, DOC_REF, LOG_REF;
-try {
-  const existingApps = firebase.apps;
-  const app = existingApps.length === 0 
-    ? firebase.initializeApp(firebaseConfig) 
-    : existingApps[0];
-  db_fire = firebase.firestore(app);
-  DOC_REF = db_fire.collection('sistema').doc('dados');
-  LOG_REF = db_fire.collection('sistema').doc('acessos');
-  console.log('Firebase iniciado OK');
-} catch(e) {
-  console.error('Firebase init error:', e);
-}
 
 // ════════════════════════════════════════════
 //  DATA LAYER — Firebase + localStorage
