@@ -781,6 +781,15 @@ function saveDB(d) {
     .catch(e => console.warn('Firebase save error:', e));
 }
 
+async function sincronizar() {
+  const btn = document.getElementById('btn-sync');
+  if (btn) { btn.textContent = '⏳ Sincronizando...'; btn.disabled = true; }
+  const ok = await loadFromFirebase();
+  if (btn) { btn.textContent = '🔄 Sincronizar'; btn.disabled = false; }
+  if (ok) toast('Dados atualizados!');
+  else toast('Sem dados novos no servidor', 'error');
+}
+
 async function loadFromFirebase() {
   if (!DOC_REF) return false;
   try {
