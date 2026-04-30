@@ -1080,12 +1080,17 @@ function calcAtingInd(ind, resultado) {
   if (resultado === null || resultado === '' || resultado === undefined) return null;
   let v = parseFloat(resultado);
   if (isNaN(v)) return null;
-  // Normalizar resultado para mesma escala das metas
-  if (ind.formato === 'inteiro') {
-    // Resultado em inteiro (ex: 92), metas em decimal (ex: 0.92) → converter resultado
+
+  let {sentido, m85, m90, m95, m100, peso, formato} = ind;
+
+  if (formato === 'inteiro') {
     v = v / 100;
+    if (m85 !== null && m85 !== undefined) m85 = m85 / 100;
+    if (m90 !== null && m90 !== undefined) m90 = m90 / 100;
+    if (m95 !== null && m95 !== undefined) m95 = m95 / 100;
+    if (m100 !== null && m100 !== undefined) m100 = m100 / 100;
   }
-  const {sentido, m85, m90, m95, m100, peso} = ind;
+
   if (m100 === null || m100 === undefined) return null;
   const cmp = sentido === 'maior' ? (a,b) => a >= b : (a,b) => a <= b;
   const interp = (r, lo, hi, loV, hiV) => {
