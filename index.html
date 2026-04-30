@@ -198,9 +198,6 @@ tr:hover td { background: rgba(255,255,255,0.018); }
         <label>Turno</label>
         <select id="edit-turno">
           <option value="">— Sem turno —</option>
-          <option>1º Turno - 21:00 / 05:20</option>
-          <option>2º Turno - 05:00 / 13:20</option>
-          <option>3º Turno - 13:00 / 21:20</option>
         </select>
       </div>
       <div class="form-group">
@@ -431,9 +428,6 @@ tr:hover td { background: rgba(255,255,255,0.018); }
             <label>Turno</label>
             <select id="ni-turno">
               <option value="">— Sem turno —</option>
-              <option>1º Turno - 21:00 / 05:20</option>
-              <option>2º Turno - 05:00 / 13:20</option>
-              <option>3º Turno - 13:00 / 21:20</option>
             </select>
           </div>
           <div class="form-group">
@@ -534,14 +528,19 @@ tr:hover td { background: rgba(255,255,255,0.018); }
           </table></div>
         </div>
         <div class="card">
-          <div class="card-title">Turnos Padrão</div>
-          <table><thead><tr><th>Cód</th><th>Turno</th><th>Horário</th></tr></thead>
-          <tbody>
-            <tr><td class="mono" style="color:var(--accent)">T1</td><td>1º Turno</td><td style="color:var(--text2)">21:00 / 05:20</td></tr>
-            <tr><td class="mono" style="color:var(--accent)">T2</td><td>2º Turno</td><td style="color:var(--text2)">05:00 / 13:20</td></tr>
-            <tr><td class="mono" style="color:var(--accent)">T3</td><td>3º Turno</td><td style="color:var(--text2)">13:00 / 21:20</td></tr>
-            <tr><td class="mono" style="color:var(--text3)">—</td><td>Sem turno</td><td style="color:var(--text2)">—</td></tr>
-          </tbody></table>
+          <div class="card-title">Turnos</div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Nome do Turno</label>
+            <input type="text" id="nt-nome" placeholder="ex: 1º Turno - 06:00 / 14:00" onkeydown="if(event.key==='Enter')addTurno()">
+          </div>
+          <button class="btn btn-primary" onclick="addTurno()">+ Adicionar</button>
+          <hr class="divider">
+          <div class="card-title">Turnos Cadastrados</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turno</th><th></th></tr></thead>
+            <tbody id="turnos-tbody"></tbody>
+          </table></div>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px;">⚠ Remover um turno não exclui os indicadores vinculados a ele.</p>
         </div>
       </div>
     </div>
@@ -757,6 +756,7 @@ function migrateDB(saved) {
   if (!saved.s5) saved.s5 = {};
   if (!saved.setores || saved.setores.length === 0) saved.setores = defaultDB().setores;
   if (!saved.indicadores || saved.indicadores.length === 0) saved.indicadores = defaultDB().indicadores;
+  if (!saved.turnos || saved.turnos.length === 0) saved.turnos = defaultDB().turnos;
   return saved;
 }
 
@@ -921,6 +921,11 @@ function defaultDB() {
       "EXTRUSORA","FFO","HIGIENIZACAO","HIGIENIZACAO INDUSTRIAL","LABORATORIO",
       "MANUTENCAO","PROJETOS","RECEBIMENTO","RESTAURANTE","SALA DE MICRO","SESMT","UTILIDADES"
     ],
+    turnos: [
+      "1º Turno - 21:00 / 05:20",
+      "2º Turno - 05:00 / 13:20",
+      "3º Turno - 13:00 / 21:20"
+    ],
     indicadores: defaultIndicadores(),
     resultados: {},
     s5: {},        // { "SETOR||YYYY-MM": [{nota, data, auditor}, ...] }
@@ -998,7 +1003,7 @@ const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov'
 const MESES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 let db = loadDB();
-let currentSetor = null, currentTurno = null, currentFuncao = '';
+let currentSetor = null, currentTurno = null, currentFuncao = '', currentPeriod = '';
 let pendingPage = null, pendingArea = null;
 let unlocked = { qualidade: false, sst: false, planejamento: false };
 
@@ -1051,7 +1056,7 @@ function showPage(id) {
 
   if (id === 'resultados') { renderSetorChips(); carregarFaturamentoCampo(); }
   if (id === 'indicadores') { populateSetorSelects(); renderIndicadores(); }
-  if (id === 'setores') renderSetores();
+  if (id === 'setores') { renderSetores(); renderTurnos(); }
   if (id === 'qualidade') initQualidade();
   if (id === 'sst') initSST();
   if (id === 'sst-sit') { updateFatalBanner(); renderSituacao(); renderSSTHistorico(); }
@@ -1183,7 +1188,7 @@ function savePeriod() {
   updatePeriodDisplay();
   carregarFaturamentoCampo();
   toast('Período atualizado!');
-  if (currentSetor) renderLancamento(currentSetor, currentTurno);
+  if (currentSetor) renderLancamento(currentSetor, currentTurno, currentFuncao, currentPeriod);
 }
 
 // ════════════════════════════════════════════
@@ -1205,49 +1210,82 @@ function renderSetorChips() {
 function selectSetor(setor) {
   currentSetor = setor;
   currentFuncao = '';
+  currentPeriod = '';
   renderSetorChips();
   const turnos = [...new Set(db.indicadores.filter(i => i.setor === setor && i.turno).map(i => i.turno))];
   currentTurno = turnos.length > 0 ? turnos[0] : '';
-  renderLancamento(setor, currentTurno, '');
+  renderLancamento(setor, currentTurno, '', '');
 }
 
 // ════════════════════════════════════════════
 //  LANÇAMENTO DE RESULTADOS
 // ════════════════════════════════════════════
-function renderLancamento(setor, turno, funcao) {
+function renderLancamento(setor, turno, funcao, period) {
   document.getElementById('lancamento-title').textContent = `Indicadores — ${setor}`;
   const pkey = getPeriodKey();
   const mes = db.periodo.mes, ano = db.periodo.ano;
   const inds = db.indicadores.filter(i => i.setor === setor);
   const turnos = [...new Set(inds.filter(i => i.turno).map(i => i.turno))];
   const hasTurnos = turnos.length > 0;
+  // Indicadores sem turno (válidos para todos os turnos)
+  const indsSemTurno = inds.filter(i => !i.turno);
   let html = '';
 
   if (hasTurnos) {
     html += `<div class="tabs-inline">` +
       turnos.map(t => `<div class="tab-inline${t===turno?' active':''}"
-        onclick="currentTurno='${t}';currentFuncao='';renderLancamento('${setor}','${t}')">${t}</div>`).join('') +
+        onclick="currentTurno='${t}';currentFuncao='';currentPeriod='';renderLancamento('${setor}','${t}','','')">${t}</div>`).join('') +
       `</div>`;
   }
 
-  // Tabs de Função dentro do turno
-  const indsDoTurno = inds.filter(i => i.turno === turno);
-  const funcoes = [...new Set(indsDoTurno.filter(i => i.funcao).map(i => i.funcao))];
+  // Indicadores com turno específico vs sem turno
+  const indsDoTurnoEspecifico = hasTurnos ? inds.filter(i => i.turno === turno) : [];
+
+  // Para tabs de função: considera indicadores do turno específico + sem turno
+  const indsParaFuncao = hasTurnos ? [...indsDoTurnoEspecifico, ...indsSemTurno] : inds;
+  const funcoes = [...new Set(indsParaFuncao.filter(i => i.funcao).map(i => i.funcao))];
   const hasFuncoes = funcoes.length > 0;
-  if (!funcao) funcao = currentFuncao || (hasFuncoes ? funcoes[0] : '');
+  if (!funcao && funcao !== '') funcao = currentFuncao || '';
   currentFuncao = funcao;
 
   if (hasFuncoes) {
     html += `<div class="tabs-inline" style="margin-top:-8px;margin-bottom:16px;">` +
-      `<div class="tab-inline${!funcao?' active':''}" onclick="currentFuncao='';renderLancamento('${setor}','${turno}','')">Todos</div>` +
+      `<div class="tab-inline${!funcao?' active':''}" onclick="currentFuncao='';currentPeriod='';renderLancamento('${setor}','${turno}','','')">Todos</div>` +
       funcoes.map(f => `<div class="tab-inline${f===funcao?' active':''}"
-        onclick="currentFuncao='${f.replace(/'/g,"\'")}';renderLancamento('${setor}','${turno}','${f.replace(/'/g,"\'")}')">${f}</div>`).join('') +
+        onclick="currentFuncao='${f.replace(/'/g,"\'")}';currentPeriod='';renderLancamento('${setor}','${turno}','${f.replace(/'/g,"\'")}','')">${f}</div>`).join('') +
       `</div>`;
   }
 
-  const filtered = hasFuncoes && funcao
-    ? indsDoTurno.filter(i => i.funcao === funcao)
-    : indsDoTurno;
+  // Montar base de indicadores sem duplicatas
+  let base;
+  if (hasTurnos) {
+    if (hasFuncoes && funcao) {
+      base = [...indsDoTurnoEspecifico.filter(i => i.funcao === funcao),
+              ...indsSemTurno.filter(i => i.funcao === funcao || !i.funcao)];
+    } else {
+      base = [...indsDoTurnoEspecifico, ...indsSemTurno];
+    }
+  } else {
+    base = hasFuncoes && funcao ? inds.filter(i => i.funcao === funcao) : inds;
+  }
+
+  // Abas de periodicidade (se houver periodicidades não-mensais)
+  const periods = [...new Set(base.map(i => i.periodicidade || 'mensal'))];
+  const hasMultiPeriod = periods.length > 1;
+  if (!period && period !== '') period = currentPeriod || '';
+  currentPeriod = period;
+
+  if (hasMultiPeriod) {
+    const labelPeriod = p => ({ mensal:'Mensal', trimestral:'Trimestral', semestral:'Semestral', anual:'Anual' }[p] || p);
+    html += `<div class="tabs-inline" style="margin-top:-8px;margin-bottom:16px;">` +
+      `<div class="tab-inline${!period?' active':''}" onclick="currentPeriod='';renderLancamento('${setor}','${turno}','${funcao}','')">Todos</div>` +
+      periods.map(p => `<div class="tab-inline${p===period?' active':''}"
+        onclick="currentPeriod='${p}';renderLancamento('${setor}','${turno}','${funcao}','${p}')">${labelPeriod(p)}</div>`).join('') +
+      `</div>`;
+  }
+
+  // Aplicar filtro de periodicidade
+  const filtered = period ? base.filter(i => (i.periodicidade || 'mensal') === period) : base;
   const rKey = `${setor}||${turno}${funcao?'||'+funcao:''}`;
   const saved = (db.resultados[pkey] || {})[rKey] || {};
 
@@ -1315,14 +1353,14 @@ function limparResultado(pkey, rKey, indId, btn) {
   // Limpa o campo visualmente
   const input = btn.closest('tr').querySelector('.input-nota');
   if (input) { input.value = ''; input.dispatchEvent(new Event('change')); }
-  renderLancamento(currentSetor, currentTurno);
+  renderLancamento(currentSetor, currentTurno, currentFuncao, currentPeriod);
 }
 
 function limparTodosResultados(pkey, rKey) {
   if (!confirm('Limpar todos os resultados deste setor/turno?')) return;
   if (db.resultados[pkey]) delete db.resultados[pkey][rKey];
   saveDB(db);
-  renderLancamento(currentSetor, currentTurno);
+  renderLancamento(currentSetor, currentTurno, currentFuncao, currentPeriod);
   toast('Resultados limpos!');
 }
 
@@ -1344,6 +1382,47 @@ function populateSetorSelects() {
     const blank = id === 'filter-ind-setor' ? '<option value="">Todos</option>' : '';
     el.innerHTML = blank + db.setores.map(s => `<option>${s}</option>`).join('');
   });
+  // Populate turno selects dynamically
+  ['ni-turno','edit-turno'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— Sem turno —</option>' +
+      (db.turnos || []).map(t => `<option${t===cur?' selected':''}>${t}</option>`).join('');
+  });
+}
+
+function renderTurnos() {
+  const tbody = document.getElementById('turnos-tbody');
+  if (!tbody) return;
+  const turnos = db.turnos || [];
+  tbody.innerHTML = turnos.length ? turnos.map((t,i) =>
+    `<tr><td style="font-size:13px">${t}</td>
+     <td><button class="btn btn-danger btn-sm" onclick="removeTurno(${i})">Remover</button></td></tr>`
+  ).join('') : `<tr><td colspan="2" class="empty-state">Nenhum turno cadastrado</td></tr>`;
+}
+
+function addTurno() {
+  const el = document.getElementById('nt-nome');
+  const nome = el.value.trim();
+  if (!nome) { toast('Informe o nome do turno', 'error'); return; }
+  if (!db.turnos) db.turnos = [];
+  if (db.turnos.includes(nome)) { toast('Turno já cadastrado', 'error'); return; }
+  db.turnos.push(nome);
+  saveDB(db);
+  renderTurnos();
+  populateSetorSelects();
+  el.value = '';
+  toast('Turno adicionado!');
+}
+
+function removeTurno(idx) {
+  if (!confirm('Remover este turno? Os indicadores vinculados não serão excluídos.')) return;
+  db.turnos.splice(idx, 1);
+  saveDB(db);
+  renderTurnos();
+  populateSetorSelects();
+  toast('Turno removido!');
 }
 
 document.getElementById('ni-period').addEventListener('change', function() {
@@ -2041,6 +2120,7 @@ function carregarJSON(e) {
       if (!loaded.s5) loaded.s5 = {};
       if (!loaded.setores || loaded.setores.length === 0) loaded.setores = defaultDB().setores;
       if (!loaded.indicadores || loaded.indicadores.length === 0) loaded.indicadores = defaultDB().indicadores;
+      if (!loaded.turnos || loaded.turnos.length === 0) loaded.turnos = defaultDB().turnos;
       db = loaded;
       saveDB(db);
       const now = new Date();
