@@ -1463,10 +1463,10 @@ function addIndicador() {
     periodicidade: period,
     fechamento: period !== 'mensal' ? parseInt(document.getElementById('ni-fechamento').value) : null,
     peso: parseFloat(document.getElementById('ni-peso').value) || 0,
-    m85: parseFloat(document.getElementById('ni-m85').value) || null,
-    m90: parseFloat(document.getElementById('ni-m90').value) || null,
-    m95: parseFloat(document.getElementById('ni-m95').value) || null,
-    m100: parseFloat(document.getElementById('ni-m100').value) || null,
+    m85: document.getElementById('ni-m85').value !== '' ? parseFloat(document.getElementById('ni-m85').value) : null,
+    m90: document.getElementById('ni-m90').value !== '' ? parseFloat(document.getElementById('ni-m90').value) : null,
+    m95: document.getElementById('ni-m95').value !== '' ? parseFloat(document.getElementById('ni-m95').value) : null,
+    m100: document.getElementById('ni-m100').value !== '' ? parseFloat(document.getElementById('ni-m100').value) : null,
   };
   db.indicadores.push(novo);
   saveDB(db);
@@ -1524,10 +1524,10 @@ function salvarEdicaoIndicador() {
     formato: document.getElementById('edit-formato').value,
     periodicidade: document.getElementById('edit-period').value,
     peso: parseFloat(document.getElementById('edit-peso').value) || 0,
-    m85: parseFloat(document.getElementById('edit-m85').value) || null,
-    m90: parseFloat(document.getElementById('edit-m90').value) || null,
-    m95: parseFloat(document.getElementById('edit-m95').value) || null,
-    m100: parseFloat(document.getElementById('edit-m100').value) || null,
+    m85: document.getElementById('edit-m85').value !== '' ? parseFloat(document.getElementById('edit-m85').value) : null,
+    m90: document.getElementById('edit-m90').value !== '' ? parseFloat(document.getElementById('edit-m90').value) : null,
+    m95: document.getElementById('edit-m95').value !== '' ? parseFloat(document.getElementById('edit-m95').value) : null,
+    m100: document.getElementById('edit-m100').value !== '' ? parseFloat(document.getElementById('edit-m100').value) : null,
   };
 
   saveDB(db);
