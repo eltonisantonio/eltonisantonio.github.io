@@ -8,29 +8,44 @@
   </button>
 </div>
 
-<!-- Summary stats -->
+<!-- Summary stats — 5 cards matching POC -->
 @let s = summary();
 <div class="stat-grid">
-  <div class="stat-card">
-    <div class="stat-label">Setores/Turnos</div>
-    <div class="stat-value">{{ s.withData }}<span style="font-size:14px;color:var(--text3)">/{{ s.total }}</span></div>
-    <div class="stat-sub">com dados lançados</div>
-  </div>
   <div class="stat-card">
     <div class="stat-label">Média Geral</div>
     <div class="stat-value" [style.color]="finalColor(s.average)">
       @if (s.average !== null) { {{ (s.average * 100).toFixed(1) }}% }
       @else { — }
     </div>
-    <div class="stat-sub">dos grupos com dados</div>
+    <div class="stat-sub">todos os setores/turnos</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Acima de 85%</div>
+    <div class="stat-value" style="color:var(--green)">{{ s.aboveMeta }}</div>
+    <div class="stat-sub">de {{ s.total }} setores/turnos</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Faturamento</div>
-    <div class="stat-value" style="font-size:22px">
+    <div class="stat-value" style="font-size:22px"
+         [style.color]="s.billing > 0 ? 'var(--green)' : 'var(--text3)'">
       @if (s.billing > 0) { +{{ (s.billing * 100).toFixed(1) }}% }
       @else { — }
     </div>
-    <div class="stat-sub">bônus do período</div>
+    <div class="stat-sub">de 10% possíveis</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Período</div>
+    <div class="stat-value" style="font-size:20px">{{ periodComponents().month }}</div>
+    <div class="stat-sub">{{ periodComponents().year }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Acidente Fatal</div>
+    <div class="stat-value" style="font-size:20px"
+         [style.color]="s.fatalActive ? 'var(--red)' : 'var(--green)'">
+      @if (s.fatalActive) { ⚠ Sim }
+      @else { ✓ Não }
+    </div>
+    <div class="stat-sub">{{ s.fatalActive ? 'Variável zerado' : 'Sem ocorrência fatal' }}</div>
   </div>
 </div>
 
@@ -54,9 +69,14 @@
           <tr><td colspan="7" class="empty-state">Nenhum indicador cadastrado</td></tr>
         }
         @for (row of rows(); track row.label) {
-          <tr>
-            <td style="font-weight:500">{{ row.label }}</td>
-            <td class="mono">
+          <!-- Main row — clickable to expand -->
+          <tr (click)="toggleRow(row.label)" style="cursor:pointer">
+            <td style="font-weight:500;font-size:12px">
+              <span style="display:inline-block;margin-right:6px;font-size:9px;color:var(--text3);transition:transform .2s"
+                    [style.transform]="expandedRows().has(row.label) ? 'rotate(90deg)' : ''">▶</span>
+              {{ row.label }}
+            </td>
+            <td class="mono" style="font-weight:600">
               @if (row.breakdown.raw !== null) { {{ (row.breakdown.raw * 100).toFixed(1) }}% }
               @else { <span style="color:var(--text3)">—</span> }
             </td>
@@ -69,7 +89,7 @@
             <td class="mono" [style.color]="row.breakdown.billing > 0 ? 'var(--green)' : 'var(--text3)'">
               {{ row.breakdown.billing > 0 ? '+' + fmtPct(row.breakdown.billing) : '—' }}
             </td>
-            <td class="mono" style="font-size:16px;font-weight:700"
+            <td class="mono" style="font-size:15px;font-weight:700"
                 [style.color]="finalColor(row.breakdown.final)">
               @if (row.breakdown.final !== null) { {{ (row.breakdown.final * 100).toFixed(1) }}% }
               @else { <span style="font-size:13px;color:var(--text3)">sem dados</span> }
@@ -80,6 +100,39 @@
               }
             </td>
           </tr>
+
+          <!-- Expanded indicator detail rows -->
+          @if (expandedRows().has(row.label)) {
+            @for (d of row.details; track d.name) {
+              <tr style="background:rgba(2,79,43,0.03)">
+                <td style="padding-left:28px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">
+                  {{ d.name }}
+                </td>
+                <td style="font-size:11px;border-bottom:1px solid var(--border)">
+                  <span class="badge badge-gray">{{ PERIOD_LABELS[d.periodicity] }}</span>
+                </td>
+                <td class="mono" style="font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)">
+                  {{ (d.weight * 100).toFixed(0) }}%
+                </td>
+                <td class="mono" style="font-size:12px;border-bottom:1px solid var(--border)">
+                  @if (d.rawValue !== null) { {{ d.rawValue }} }
+                  @else { <span style="color:var(--text3)">—</span> }
+                </td>
+                <td colspan="3" style="font-size:12px;border-bottom:1px solid var(--border)">
+                  @if (!d.countsMonth) {
+                    <span style="font-size:10px;opacity:.6">não conta este mês</span>
+                  } @else if (d.achievement !== null) {
+                    <span class="mono" style="font-weight:600"
+                          [style.color]="achievementColor(d.achievement, d.weight)">
+                      {{ d.weight > 0 ? (d.achievement / d.weight * 100).toFixed(1) + '%' : '—' }}
+                    </span>
+                  } @else {
+                    <span style="color:var(--text3)">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
         }
       </tbody>
     </table>

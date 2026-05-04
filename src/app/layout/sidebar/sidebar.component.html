@@ -5,6 +5,18 @@
     <div class="period-badge">
       <span>●</span> {{ periodLabel() }}
     </div>
+    <button
+      (click)="sync()"
+      [disabled]="isSyncing()"
+      style="margin-top:10px;width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:7px 0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
+      @if (isSyncing()) { ⏳ Sincronizando... }
+      @else { 🔄 Sincronizar }
+    </button>
+    @if (firebase.lastSync()) {
+      <div style="font-size:10px;color:rgba(115,150,48,0.9);text-align:center;margin-top:4px">
+        Sincronizado {{ firebase.lastSync() }}
+      </div>
+    }
   </div>
 
   <nav>

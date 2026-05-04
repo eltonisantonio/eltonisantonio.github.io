@@ -1,9 +1,24 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
 import { ScoringService } from '../../core/services/scoring.service';
 import { formatSignedPercent, getScoreStatus, MONTHS_PT } from '../../core/utils/format.utils';
 import { ROUTE_LABELS } from '../../core/routes.map';
 import type { ScoreBreakdown, ScoreStatus } from '../../core/models';
+import type { Periodicity } from '../../core/models';
+
+const MONTHS_FULL_PT = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
+
+interface IndicatorDetail {
+  name:        string;
+  periodicity: Periodicity;
+  weight:      number;
+  rawValue:    number | null;
+  achievement: number | null;
+  countsMonth: boolean;
+}
 
 interface ManagerRow {
   label:     string;
@@ -12,6 +27,7 @@ interface ManagerRow {
   role:      string;
   breakdown: ScoreBreakdown;
   status:    ScoreStatus;
+  details:   IndicatorDetail[];
 }
 
 @Component({
@@ -24,18 +40,46 @@ export class ManagersComponent {
   private readonly db      = inject(DbService);
   private readonly scoring = inject(ScoringService);
 
-  protected readonly title           = ROUTE_LABELS.managers;
-  protected readonly fmtPct          = formatSignedPercent;
+  protected readonly title  = ROUTE_LABELS.managers;
+  protected readonly fmtPct = formatSignedPercent;
+
+  protected readonly PERIOD_LABELS: Record<Periodicity, string> = {
+    monthly:    'Mensal',
+    quarterly:  'Trimestral',
+    semiannual: 'Semestral',
+    annual:     'Anual',
+  };
 
   protected readonly period = computed(() => {
     const [year, month] = this.db.currentPeriod().split('-');
     return `${MONTHS_PT[parseInt(month, 10) - 1]}/${year}`;
   });
 
+  protected readonly periodComponents = computed(() => {
+    const [year, month] = this.db.currentPeriod().split('-');
+    return { month: MONTHS_FULL_PT[parseInt(month, 10) - 1], year };
+  });
+
+  // ── Expandable rows ────────────────────────────────────────────────────────
+
+  protected readonly expandedRows = signal(new Set<string>());
+
+  protected toggleRow(label: string): void {
+    this.expandedRows.update(set => {
+      const next = new Set(set);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
+    });
+  }
+
   // ── Rows ───────────────────────────────────────────────────────────────────
 
-  protected readonly rows = computed((): ManagerRow[] =>
-    this.scoring.getGroupCombinations().map(({ sector, shift, role }) => {
+  protected readonly rows = computed((): ManagerRow[] => {
+    const period     = this.db.currentPeriod();
+    const month      = parseInt(period.split('-')[1], 10);
+    const allResults = this.db.results();
+
+    return this.scoring.getGroupCombinations().map(({ sector, shift, role }) => {
       const breakdown = this.scoring.calcScoreBreakdown(sector, shift, role);
       const status    = getScoreStatus(breakdown.final);
 
@@ -43,9 +87,23 @@ export class ManagersComponent {
       if (shift) label += ` — ${shift.split(' ').slice(0, 2).join(' ')}`;
       if (role)  label += ` / ${role}`;
 
-      return { label, sector, shift, role, breakdown, status };
-    }),
-  );
+      const groupKey = this.scoring.buildGroupKey(sector, shift, role || undefined);
+      const saved    = allResults[period]?.[groupKey] ?? {};
+
+      const details: IndicatorDetail[] = this.db.indicators()
+        .filter(i => i.sector === sector && i.shift === shift && (role === '' || i.role === role))
+        .map(ind => {
+          const countsMonth = this.scoring.indicatorCountsInMonth(ind, month);
+          const rawValue    = saved[String(ind.id)] ?? null;
+          const achievement = countsMonth
+            ? this.scoring.calcIndicatorAchievement(ind, rawValue)
+            : null;
+          return { name: ind.name, periodicity: ind.periodicity, weight: ind.weight, rawValue, achievement, countsMonth };
+        });
+
+      return { label, sector, shift, role, breakdown, status, details };
+    });
+  });
 
   // ── Summary stats ──────────────────────────────────────────────────────────
 
@@ -58,11 +116,16 @@ export class ManagersComponent {
       ? finals.reduce((a, b) => a + b, 0) / finals.length
       : null;
 
+    const aboveMeta  = this.rows().filter(r => r.breakdown.final !== null && r.breakdown.final >= 0.85).length;
+    const fatalActive = this.db.sstFatalActive();
+
     return {
-      total:   this.rows().length,
-      withData: finals.length,
+      total:      this.rows().length,
+      withData:   finals.length,
       average,
-      billing: this.scoring.getBillingRate(),
+      billing:    this.scoring.getBillingRate(),
+      aboveMeta,
+      fatalActive,
     };
   });
 
@@ -70,12 +133,12 @@ export class ManagersComponent {
 
   protected statusClass(status: ScoreStatus): string {
     switch (status) {
-      case '100%':    return 'badge badge-green';
-      case '95%+':    return 'badge badge-green';
-      case '90%+':    return 'badge badge-amber';
-      case '85%+':    return 'badge badge-amber';
-      case '<85%':    return 'badge badge-red';
-      default:        return 'badge badge-gray';
+      case '100%':  return 'badge badge-green';
+      case '95%+':  return 'badge badge-green';
+      case '90%+':  return 'badge badge-amber';
+      case '85%+':  return 'badge badge-amber';
+      case '<85%':  return 'badge badge-red';
+      default:      return 'badge badge-gray';
     }
   }
 
@@ -83,6 +146,14 @@ export class ManagersComponent {
     if (final === null) return 'var(--text3)';
     if (final >= 0.95) return 'var(--green)';
     if (final >= 0.85) return 'var(--amber)';
+    return 'var(--red)';
+  }
+
+  protected achievementColor(achievement: number | null, weight: number): string {
+    if (achievement === null) return 'var(--text3)';
+    const pct = weight > 0 ? achievement / weight : 0;
+    if (pct >= 0.95) return 'var(--green)';
+    if (pct >= 0.85) return 'var(--amber)';
     return 'var(--red)';
   }
 
@@ -114,7 +185,8 @@ export class ManagersComponent {
       header,
       ...lines,
       [],
-      ['', '', 'MÉDIA GERAL', '', '', '', '', fmtPct(s.average), ''],
+      ['', '', 'MÉDIA GERAL',           '', '', '', '', fmtPct(s.average), ''],
+      ['', '', 'FATURAMENTO DO PERÍODO', '', '', '', '', s.billing > 0 ? '+' + fmtPct(s.billing) : '—', ''],
     ];
 
     const csv = csvRows

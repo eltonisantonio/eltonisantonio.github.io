@@ -70,12 +70,14 @@ export class DbService {
     const db = remote as Db;
     this._db.set(db);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    this.firebase.logAccess('Sincronização', 'Dados carregados da nuvem');
     return true;
   }
 
   private persist(db: Db): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
     this.firebase.save(db);
+    this.firebase.logAccess('Salvamento');
   }
 }
 

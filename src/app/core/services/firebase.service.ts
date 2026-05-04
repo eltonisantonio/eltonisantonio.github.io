@@ -8,9 +8,12 @@ const fb = (): any => (window as any)['firebase'];
 const docRef = () =>
   fb().firestore().collection('sistema').doc('dados');
 
+const accessRef = () =>
+  fb().firestore().collection('sistema').doc('acessos');
+
 @Injectable({ providedIn: 'root' })
 export class FirebaseService {
-  readonly status = signal<SyncStatus>('idle');
+  readonly status   = signal<SyncStatus>('idle');
   readonly lastSync = signal<string | null>(null);
 
   async save(data: unknown): Promise<void> {
@@ -43,5 +46,22 @@ export class FirebaseService {
       this.status.set('error');
       return null;
     }
+  }
+
+  logAccess(acao: string, detalhe = ''): void {
+    try {
+      const ref = accessRef();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ref.get().then((doc: any) => {
+        const logs: unknown[] = doc.exists ? (doc.data()['logs'] ?? []) : [];
+        logs.unshift({
+          data:   new Date().toISOString(),
+          acao,
+          detalhe,
+          agente: navigator.userAgent.substring(0, 50),
+        });
+        ref.set({ logs: logs.slice(0, 200) });
+      });
+    } catch { /* silent — fire-and-forget */ }
   }
 }

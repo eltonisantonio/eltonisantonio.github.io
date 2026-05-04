@@ -25,6 +25,7 @@ export class ExportComponent {
     a.download   = `variavel_dados_${period}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
+    this.firebase.logAccess('Download JSON', `variavel_dados_${period}.json`);
     this.toast.show('Arquivo exportado!');
   }
 
