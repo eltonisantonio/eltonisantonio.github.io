@@ -1,0 +1,138 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Lance as avaliações 5S por setor e período</p>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px">
+
+  <!-- Entry card -->
+  <div class="card">
+    <div class="card-title">Lançamento de Avaliações</div>
+
+    <!-- Selectors -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+      <div class="form-group" style="flex:1;min-width:140px">
+        <label for="q-sector">Setor</label>
+        <select id="q-sector" (change)="selectedSector.set($any($event.target).value)">
+          @for (s of sectors(); track s) {
+            <option [value]="s" [selected]="selectedSector() === s">{{ s }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group" style="min-width:130px">
+        <label for="q-month">Mês</label>
+        <select id="q-month" (change)="selectedMonth.set($any($event.target).value)">
+          @for (m of months; track m.value) {
+            <option [value]="m.value" [selected]="selectedMonth() === m.value">
+              {{ m.label }} {{ auditYear() }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Audit slots -->
+    @for (slot of draftSlots(); track $index; let i = $index) {
+      <div class="aval-row">
+        <div class="aval-header">
+          <span class="aval-num">Avaliação {{ i + 1 }}</span>
+          <span [class]="slotBadgeClass(slot.score)">
+            @if (slot.score !== null) { Nota {{ slot.score.toFixed(2) }} }
+            @else { Não realizada }
+          </span>
+        </div>
+        <div style="display:grid;grid-template-columns:140px 1fr 100px;gap:10px">
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" [value]="slot.date" (change)="updateDate(i, $event)">
+          </div>
+          <div class="form-group">
+            <label>Auditor</label>
+            <input type="text" [value]="slot.auditor" (change)="updateAuditor(i, $event)"
+                   placeholder="Nome do auditor">
+          </div>
+          <div class="form-group">
+            <label>Nota (0–10)</label>
+            <input type="number" class="input-score" step="0.01" min="0" max="10"
+                   [value]="slot.score ?? ''" (change)="updateScore(i, $event)" placeholder="—">
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Average preview -->
+    @if (averagePreview(); as avg) {
+      <div style="margin:12px 0;font-size:13px;color:var(--text2)">
+        Média atual:
+        <strong [class]="averageClass(avg.value)"
+                style="font-family:'DM Mono',monospace;padding:2px 8px">
+          {{ avg.value.toFixed(2) }}
+        </strong>
+        <span style="font-size:12px">({{ avg.count }} avaliação{{ avg.count > 1 ? 'ões' : '' }})</span>
+      </div>
+    }
+
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btn-primary" (click)="save()">Salvar</button>
+      <button class="btn btn-ghost" (click)="clearCurrent()">Limpar mês</button>
+    </div>
+  </div>
+
+  <!-- History card -->
+  <div class="card">
+    <div class="card-title">Histórico</div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label for="q-hist-filter">Filtrar por setor</label>
+      <select id="q-hist-filter" (change)="historyFilter.set($any($event.target).value)">
+        <option value="">Todos</option>
+        @for (s of sectors(); track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th>Período</th>
+            <th>Avals.</th>
+            <th>Média</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (historyRows().length === 0) {
+            <tr><td colspan="6" class="empty-state">Nenhum registro encontrado</td></tr>
+          }
+          @for (row of historyRows(); track row.key) {
+            <tr>
+              <td style="font-weight:500">{{ row.sector }}</td>
+              <td class="mono">{{ formatPeriod(row.period) }}</td>
+              <td style="color:var(--text2)">{{ row.count }}</td>
+              <td class="mono" style="font-weight:700;font-size:15px"
+                  [style.color]="row.average >= 8 ? 'var(--green)' : row.average >= 7 ? 'var(--amber)' : 'var(--red)'">
+                {{ row.average.toFixed(2) }}
+              </td>
+              <td>
+                <span [class]="averageClass(row.average)">
+                  {{ row.average >= 7.5 ? '✓ OK' : '⚠ Penalidade' }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-ghost btn-xs" (click)="clearHistoryEntry(row.key)"
+                        style="color:var(--text3)">✕</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,46 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Penalidades SST por setor no período {{ period() }}</p>
+  </div>
+</div>
+
+@if (fatalActive()) {
+  <div class="fatal-banner">
+    ⚠ Acidente fatal ativo — penalidade de −100% aplicada a todos os setores.
+  </div>
+}
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>Incidentes</th>
+          <th>Penalidade</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.sector) {
+          <tr>
+            <td style="font-weight:500">{{ row.sector }}</td>
+            <td class="mono">{{ row.count }}</td>
+            <td style="font-weight:600"
+                [style.color]="row.penalty < 0 ? 'var(--red)' : 'var(--text2)'">
+              {{ row.penLabel }}
+            </td>
+            <td>
+              @if (row.ok) {
+                <span class="badge badge-green">✓ Ok</span>
+              } @else {
+                <span class="badge badge-red">Penalidade</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

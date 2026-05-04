@@ -1,0 +1,64 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Gerencie as senhas de acesso às áreas protegidas</p>
+  </div>
+</div>
+
+<div style="max-width:520px">
+  <div class="card">
+    <div class="card-title">Senhas de Área</div>
+
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px">
+      Preencha o campo para definir ou alterar a senha da área.
+      Deixe em branco para remover a proteção.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="savePasswords()">
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label for="cfg-planning">
+          Planejamento
+          @if (hasPassword('planning')) {
+            <span class="badge badge-amber" style="margin-left:6px">Protegida</span>
+          } @else {
+            <span class="badge badge-gray" style="margin-left:6px">Sem senha</span>
+          }
+        </label>
+        <input id="cfg-planning" type="password" formControlName="planning"
+               placeholder="Nova senha (ou deixe em branco para remover)"
+               autocomplete="new-password">
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label for="cfg-quality">
+          Qualidade
+          @if (hasPassword('quality')) {
+            <span class="badge badge-amber" style="margin-left:6px">Protegida</span>
+          } @else {
+            <span class="badge badge-gray" style="margin-left:6px">Sem senha</span>
+          }
+        </label>
+        <input id="cfg-quality" type="password" formControlName="quality"
+               placeholder="Nova senha (ou deixe em branco para remover)"
+               autocomplete="new-password">
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label for="cfg-sst">
+          SST
+          @if (hasPassword('sst')) {
+            <span class="badge badge-amber" style="margin-left:6px">Protegida</span>
+          } @else {
+            <span class="badge badge-gray" style="margin-left:6px">Sem senha</span>
+          }
+        </label>
+        <input id="cfg-sst" type="password" formControlName="sst"
+               placeholder="Nova senha (ou deixe em branco para remover)"
+               autocomplete="new-password">
+      </div>
+
+      <button class="btn btn-primary" type="submit">Salvar Senhas</button>
+    </form>
+  </div>
+</div>

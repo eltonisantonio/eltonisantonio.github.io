@@ -1,0 +1,43 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Faça backup e restaure os dados do sistema</p>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px">
+
+  <!-- Export -->
+  <div class="card">
+    <div class="card-title">Exportar Dados</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      Salva todos os dados (indicadores, resultados, 5S, SST e configurações)
+      em um arquivo JSON que pode ser importado posteriormente.
+    </p>
+    <button class="btn btn-primary" (click)="exportJson()">↓ Baixar JSON</button>
+  </div>
+
+  <!-- Import -->
+  <div class="card">
+    <div class="card-title">Importar Dados</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      Carrega um arquivo JSON exportado por este sistema.
+      <strong style="color:var(--amber)">Os dados atuais serão substituídos.</strong>
+    </p>
+    <label class="btn btn-ghost" style="cursor:pointer">
+      ↑ Escolher arquivo JSON
+      <input type="file" accept=".json" style="display:none" (change)="importJson($event)">
+    </label>
+  </div>
+
+  <!-- Reset -->
+  <div class="card" style="border-color:rgba(248,113,113,0.25)">
+    <div class="card-title">Restaurar Padrão</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      Apaga todos os dados e restaura os indicadores padrão do sistema.
+      <strong style="color:var(--red)">Esta ação não pode ser desfeita.</strong>
+    </p>
+    <button class="btn btn-danger" (click)="reset()">⚠ Restaurar Padrão</button>
+  </div>
+
+</div>

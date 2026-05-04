@@ -1,0 +1,213 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Gerencie indicadores por setor, turno e periodicidade</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Novo Indicador</button>
+</div>
+
+<!-- Filter -->
+<div class="card">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div class="form-group" style="flex:1;min-width:200px">
+      <label for="filter-sector">Filtrar por setor</label>
+      <select id="filter-sector" (change)="onFilterChange($event)">
+        <option value="">Todos os setores</option>
+        @for (s of sectors(); track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <div style="padding-top:18px;color:var(--text3);font-size:12px">
+      {{ filteredIndicators().length }} indicador(es)
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>Turno</th>
+          <th>Função</th>
+          <th>Indicador</th>
+          <th>Sentido</th>
+          <th>Formato</th>
+          <th>Period.</th>
+          <th>Peso</th>
+          <th>85%</th>
+          <th>90%</th>
+          <th>95%</th>
+          <th>100%</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredIndicators().length === 0) {
+          <tr>
+            <td colspan="13" class="empty-state">Nenhum indicador encontrado</td>
+          </tr>
+        }
+        @for (ind of filteredIndicators(); track ind.id) {
+          <tr>
+            <td style="font-weight:500">{{ ind.sector }}</td>
+            <td style="color:var(--text2);font-size:12px">{{ ind.shift || '—' }}</td>
+            <td style="color:var(--text2);font-size:12px">{{ ind.role || '—' }}</td>
+            <td>{{ ind.name }}</td>
+            <td>
+              @if (ind.direction === 'higher') {
+                <span class="badge badge-green">↑</span>
+              } @else {
+                <span class="badge badge-blue">↓</span>
+              }
+            </td>
+            <td>
+              <span class="badge badge-gray" style="font-size:10px">
+                {{ ind.format === 'integer' ? '%int' : ind.format === 'absolute' ? 'abs' : 'dec' }}
+              </span>
+            </td>
+            <td>
+              <span class="period-tag" [class]="'period-tag ' + ind.periodicity">
+                {{ ind.periodicity === 'monthly' ? 'Mensal'
+                 : ind.periodicity === 'quarterly' ? 'Trim.'
+                 : ind.periodicity === 'semiannual' ? 'Sem.'
+                 : 'Anual' }}
+              </span>
+            </td>
+            <td class="mono">{{ (ind.weight * 100).toFixed(0) }}%</td>
+            <td class="mono" style="color:var(--text2)">{{ fmt(ind.target85) }}</td>
+            <td class="mono" style="color:var(--text2)">{{ fmt(ind.target90) }}</td>
+            <td class="mono" style="color:var(--text2)">{{ fmt(ind.target95) }}</td>
+            <td class="mono" style="font-weight:600">{{ fmt(ind.target100) }}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ghost btn-sm" (click)="openEdit(ind)">Editar</button>
+              <button class="btn btn-danger btn-sm" style="margin-left:6px" (click)="remove(ind)">Remover</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create / Edit modal -->
+@if (isModalOpen()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-box" style="width:580px;max-height:90vh;overflow-y:auto"
+         (click)="$event.stopPropagation()">
+
+      <div class="modal-title">{{ modalTitle() }}</div>
+      <div class="modal-sub">Preencha os campos. Meta 100% é obrigatória.</div>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+
+        <!-- Nome -->
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="m-name">Nome do Indicador</label>
+          <input id="m-name" type="text" formControlName="name"
+                 placeholder="ex: ADERÊNCIA AO PLANEJAMENTO"
+                 style="text-transform:uppercase">
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="form-error">Nome obrigatório</span>
+          }
+        </div>
+
+        <!-- Setor / Turno / Função -->
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label for="m-sector">Setor</label>
+            <select id="m-sector" formControlName="sector">
+              @for (s of sectors(); track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="m-shift">Turno</label>
+            <select id="m-shift" formControlName="shift">
+              <option value="">— Sem turno —</option>
+              @for (t of shifts(); track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="m-role">Função</label>
+            <input id="m-role" type="text" formControlName="role"
+                   placeholder="ex: Operador, Líder">
+          </div>
+        </div>
+
+        <!-- Sentido / Formato / Periodicidade -->
+        <div class="form-grid" style="margin-bottom:12px">
+          <div class="form-group">
+            <label for="m-direction">Sentido</label>
+            <select id="m-direction" formControlName="direction">
+              <option value="higher">↑ Maior é melhor</option>
+              <option value="lower">↓ Menor é melhor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="m-format">Formato</label>
+            <select id="m-format" formControlName="format">
+              <option value="decimal">Decimal (ex: 0.95)</option>
+              <option value="integer">Inteiro % (ex: 95)</option>
+              <option value="absolute">Absoluto (ex: 42)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="m-periodicity">Periodicidade</label>
+            <select id="m-periodicity" formControlName="periodicity">
+              <option value="monthly">Mensal</option>
+              <option value="quarterly">Trimestral (Mar/Jun/Set/Dez)</option>
+              <option value="semiannual">Semestral (Jun/Dez)</option>
+              <option value="annual">Anual (Dezembro)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Peso -->
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="m-weight">Peso (0 a 1)</label>
+          <input id="m-weight" type="number" formControlName="weight"
+                 step="0.05" min="0.01" max="1" style="width:120px">
+          @if (form.controls.weight.touched && form.controls.weight.invalid) {
+            <span class="form-error">Peso inválido (0.01 – 1)</span>
+          }
+        </div>
+
+        <!-- Metas -->
+        <div class="form-grid" style="margin-bottom:20px">
+          <div class="form-group">
+            <label for="m-t85">Meta 85%</label>
+            <input id="m-t85" type="number" formControlName="target85" step="any" placeholder="—">
+          </div>
+          <div class="form-group">
+            <label for="m-t90">Meta 90%</label>
+            <input id="m-t90" type="number" formControlName="target90" step="any" placeholder="—">
+          </div>
+          <div class="form-group">
+            <label for="m-t95">Meta 95%</label>
+            <input id="m-t95" type="number" formControlName="target95" step="any" placeholder="—">
+          </div>
+          <div class="form-group">
+            <label for="m-t100">Meta 100% *</label>
+            <input id="m-t100" type="number" formControlName="target100" step="any" placeholder="obrigatória">
+            @if (form.controls.target100.touched && form.controls.target100.invalid) {
+              <span class="form-error">Meta 100% obrigatória</span>
+            }
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Salvar</button>
+          <button class="btn btn-ghost" type="button" (click)="closeModal()">Cancelar</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

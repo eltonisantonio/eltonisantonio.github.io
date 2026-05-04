@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Gerencie setores e turnos de avaliação</p>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px">
+
+  <!-- Sectors -->
+  <div class="card">
+    <div class="card-title">Setores</div>
+
+    <!-- Add form -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input type="text" [formControl]="newSectorCtrl"
+             placeholder="Nome do setor" style="flex:1;text-transform:uppercase"
+             (keydown.enter)="addSector()">
+      <button class="btn btn-primary" (click)="addSector()"
+              [disabled]="newSectorCtrl.invalid">Adicionar</button>
+    </div>
+    @if (newSectorCtrl.errors?.['duplicate']) {
+      <p class="form-error" style="margin-top:-10px;margin-bottom:10px">Setor já cadastrado</p>
+    }
+
+    <!-- List -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (sectors().length === 0) {
+            <tr><td colspan="2" class="empty-state">Nenhum setor cadastrado</td></tr>
+          }
+          @for (s of sectors(); track s) {
+            <tr>
+              <td style="font-weight:500">{{ s }}</td>
+              <td style="text-align:right">
+                <button class="btn btn-danger btn-sm" (click)="removeSector(s)">Remover</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Shifts -->
+  <div class="card">
+    <div class="card-title">Turnos</div>
+
+    <!-- Add form -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input type="text" [formControl]="newShiftCtrl"
+             placeholder="ex: 1º Turno - 21:00 / 05:20" style="flex:1"
+             (keydown.enter)="addShift()">
+      <button class="btn btn-primary" (click)="addShift()"
+              [disabled]="newShiftCtrl.invalid">Adicionar</button>
+    </div>
+    @if (newShiftCtrl.errors?.['duplicate']) {
+      <p class="form-error" style="margin-top:-10px;margin-bottom:10px">Turno já cadastrado</p>
+    }
+
+    <!-- List -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Turno</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (shifts().length === 0) {
+            <tr><td colspan="2" class="empty-state">Nenhum turno cadastrado</td></tr>
+          }
+          @for (t of shifts(); track t) {
+            <tr>
+              <td style="font-size:13px">{{ t }}</td>
+              <td style="text-align:right">
+                <button class="btn btn-danger btn-sm" (click)="removeShift(t)">Remover</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:8px">
+      ⚠ Remover um turno não exclui os indicadores vinculados.
+    </p>
+  </div>
+
+</div>

@@ -1,0 +1,87 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Resultado consolidado por setor — {{ period() }}</p>
+  </div>
+  <button class="btn btn-ghost" (click)="exportCsv()">
+    ↓ Exportar CSV
+  </button>
+</div>
+
+<!-- Summary stats -->
+@let s = summary();
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Setores/Turnos</div>
+    <div class="stat-value">{{ s.withData }}<span style="font-size:14px;color:var(--text3)">/{{ s.total }}</span></div>
+    <div class="stat-sub">com dados lançados</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Média Geral</div>
+    <div class="stat-value" [style.color]="finalColor(s.average)">
+      @if (s.average !== null) { {{ (s.average * 100).toFixed(1) }}% }
+      @else { — }
+    </div>
+    <div class="stat-sub">dos grupos com dados</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Faturamento</div>
+    <div class="stat-value" style="font-size:22px">
+      @if (s.billing > 0) { +{{ (s.billing * 100).toFixed(1) }}% }
+      @else { — }
+    </div>
+    <div class="stat-sub">bônus do período</div>
+  </div>
+</div>
+
+<!-- Consolidated table -->
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Setor / Turno / Função</th>
+          <th>Bruto</th>
+          <th>5S</th>
+          <th>SST</th>
+          <th>Faturamento</th>
+          <th>Final</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (rows().length === 0) {
+          <tr><td colspan="7" class="empty-state">Nenhum indicador cadastrado</td></tr>
+        }
+        @for (row of rows(); track row.label) {
+          <tr>
+            <td style="font-weight:500">{{ row.label }}</td>
+            <td class="mono">
+              @if (row.breakdown.raw !== null) { {{ (row.breakdown.raw * 100).toFixed(1) }}% }
+              @else { <span style="color:var(--text3)">—</span> }
+            </td>
+            <td class="mono" [style.color]="row.breakdown.penalty5S < 0 ? 'var(--amber)' : 'var(--text3)'">
+              {{ row.breakdown.penalty5S < 0 ? fmtPct(row.breakdown.penalty5S) : '—' }}
+            </td>
+            <td class="mono" [style.color]="row.breakdown.penaltySst < 0 ? 'var(--red)' : 'var(--text3)'">
+              {{ row.breakdown.penaltySst < 0 ? fmtPct(row.breakdown.penaltySst) : '—' }}
+            </td>
+            <td class="mono" [style.color]="row.breakdown.billing > 0 ? 'var(--green)' : 'var(--text3)'">
+              {{ row.breakdown.billing > 0 ? '+' + fmtPct(row.breakdown.billing) : '—' }}
+            </td>
+            <td class="mono" style="font-size:16px;font-weight:700"
+                [style.color]="finalColor(row.breakdown.final)">
+              @if (row.breakdown.final !== null) { {{ (row.breakdown.final * 100).toFixed(1) }}% }
+              @else { <span style="font-size:13px;color:var(--text3)">sem dados</span> }
+            </td>
+            <td>
+              @if (row.status !== 'no-data') {
+                <span [class]="statusClass(row.status)">{{ row.status }}</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

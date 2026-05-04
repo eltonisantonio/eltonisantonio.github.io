@@ -1,0 +1,119 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Registre incidentes SST e gerencie o acidente fatal</p>
+  </div>
+</div>
+
+<!-- Fatal banner -->
+@if (fatalActive()) {
+  <div class="fatal-banner">
+    ⚠ Acidente fatal ativo — variável zerado para todos os setores neste período.
+  </div>
+}
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px">
+
+  <!-- Register form -->
+  <div class="card">
+    <div class="card-title">Registrar Incidente</div>
+
+    <form [formGroup]="form" (ngSubmit)="register()">
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-group">
+          <label for="sst-sector">Setor</label>
+          <select id="sst-sector" formControlName="sector">
+            <option value="">— Selecione —</option>
+            @for (s of sectors(); track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sst-date">Data</label>
+          <input id="sst-date" type="date" formControlName="date">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label for="sst-type">Tipo</label>
+        <select id="sst-type" formControlName="type">
+          @for (t of incidentTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label for="sst-desc">Descrição (opcional)</label>
+        <input id="sst-desc" type="text" formControlName="description"
+               placeholder="Descreva brevemente o ocorrido">
+      </div>
+
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+        Registrar Incidente
+      </button>
+    </form>
+
+    <hr class="divider" style="margin-top:20px">
+
+    <!-- Fatal toggle -->
+    <div style="display:flex;align-items:center;gap:12px;padding:4px 0">
+      <input id="sst-fatal" type="checkbox" [checked]="fatalActive()" (change)="toggleFatal($event)"
+             style="width:16px;height:16px;cursor:pointer">
+      <label for="sst-fatal" style="font-size:13px;font-weight:600;cursor:pointer;text-transform:none;color:var(--red)">
+        Acidente Fatal Registrado
+      </label>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:4px">
+      Quando ativo, zera o variável de todos os setores no período atual.
+    </p>
+  </div>
+
+  <!-- Incidents list -->
+  <div class="card">
+    <div class="card-title">Incidentes Registrados</div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label for="sst-filter">Filtrar por setor</label>
+      <select id="sst-filter" (change)="filterSector.set($any($event.target).value)">
+        <option value="">Todos</option>
+        @for (s of sectors(); track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredIncidents().length === 0) {
+            <tr><td colspan="5" class="empty-state">Nenhum incidente registrado</td></tr>
+          }
+          @for (inc of filteredIncidents(); track inc.id) {
+            <tr>
+              <td style="font-weight:500">{{ inc.sector }}</td>
+              <td class="mono">{{ inc.date }}</td>
+              <td><span class="badge badge-red" style="font-size:10px">{{ inc.type }}</span></td>
+              <td style="color:var(--text2);font-size:12px">{{ inc.description || '—' }}</td>
+              <td>
+                <button class="btn btn-ghost btn-xs" (click)="remove(inc.id)"
+                        style="color:var(--text3)">✕</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
