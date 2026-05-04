@@ -1,0 +1,18 @@
+import { Component } from '@angular/core';
+import { ROUTE_LABELS } from '../../core/routes.map';
+
+@Component({
+  selector: 'app-indicators',
+  standalone: true,
+  template: `
+    <div class="page-header">
+      <div>
+        <div class="page-title">{{ title }}</div>
+        <div class="page-sub">Em construção</div>
+      </div>
+    </div>
+  `,
+})
+export class IndicatorsComponent {
+  protected readonly title = ROUTE_LABELS.indicators;
+}

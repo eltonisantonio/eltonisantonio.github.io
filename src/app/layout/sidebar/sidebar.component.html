@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sys-label">Sistema</div>
+    <div class="sys-title">Variável</div>
+    <div class="period-badge">
+      <span>●</span> {{ periodLabel() }}
+    </div>
+  </div>
+
+  <nav>
+    @for (section of sections; track section.title) {
+      @if (section.hasDivider) {
+        <div class="nav-divider"></div>
+      }
+
+      <div class="nav-section">{{ section.title }}</div>
+
+      @for (item of section.items; track item.label) {
+        <a
+          class="nav-item"
+          [class.locked]="item.lockArea"
+          [routerLink]="item.routerLink"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="nav-icon" [innerHTML]="item.safeIcon"></span>
+          {{ item.label }}
+          @if (item.lockArea) {
+            <span class="nav-lock">🔒</span>
+          }
+        </a>
+      }
+    }
+  </nav>
+</aside>
