@@ -1,0 +1,297 @@
+// ── Card ──────────────────────────────────────────────────────────────────────
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 13px;
+    border-radius: 2px;
+    background: #024f2b;
+    flex-shrink: 0;
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  white-space: nowrap;
+
+  &-primary {
+    background: #024f2b;
+    color: #fff;
+
+    &:hover {
+      background: #013d21;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(2, 79, 43, 0.25);
+    }
+  }
+
+  &-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+
+    &:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+  }
+
+  &-danger {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+
+    &:hover { background: rgba(248, 113, 113, 0.2); }
+  }
+
+  &-sm { padding: 4px 10px; font-size: 12px; }
+  &-xs { padding: 3px 8px;  font-size: 11px; }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &-green  { background: var(--green-bg);  color: var(--green); }
+  &-amber  { background: var(--amber-bg);  color: var(--amber); }
+  &-red    { background: var(--red-bg);    color: var(--red); }
+  &-blue   { background: var(--accent-glow); color: var(--accent); }
+  &-gray   { background: rgba(255, 255, 255, 0.05); color: var(--text2); border: 1px solid var(--border2); }
+  &-purple { background: var(--purple-bg); color: var(--purple); }
+}
+
+// ── Period tag ────────────────────────────────────────────────────────────────
+.period-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &.monthly    { background: rgba(115, 150, 48, 0.12); color: #739630; }
+  &.quarterly  { background: rgba(2, 79, 43, 0.10);    color: #024f2b; }
+  &.semiannual { background: var(--purple-bg);          color: var(--purple); }
+  &.annual     { background: var(--amber-bg);           color: var(--amber); }
+  &.inactive   { background: rgba(255, 255, 255, 0.04); color: var(--text3); font-style: italic; }
+}
+
+// ── Sector chip ───────────────────────────────────────────────────────────────
+.sector-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 13px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  background: var(--surface2);
+  transition: all 0.15s;
+  margin: 3px;
+
+  &:hover {
+    border-color: #024f2b;
+    color: #024f2b;
+  }
+
+  &.active {
+    background: #024f2b;
+    border-color: #024f2b;
+    color: #ffffff;
+  }
+}
+
+// ── Inline tabs ───────────────────────────────────────────────────────────────
+.tabs-inline {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.tab-inline {
+  padding: 5px 13px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text2);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+
+  &.active {
+    background: #024f2b;
+    color: #ffffff;
+    border-color: #024f2b;
+  }
+
+  &:hover:not(.active) {
+    background: var(--surface2);
+    color: var(--text);
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+.toast {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  background: #024f2b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  padding: 11px 16px;
+  font-size: 13px;
+  color: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 999;
+  max-width: 320px;
+
+  &.show  { transform: translateY(0); opacity: 1; }
+  &.error { border-color: rgba(248, 113, 113, 0.3); }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.modal-box {
+  background: #ffffff;
+  border: 1px solid rgba(2, 79, 43, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 360px;
+  max-width: 90vw;
+}
+
+.modal-title   { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.modal-sub     { font-size: 13px; color: var(--text2); margin-bottom: 22px; }
+.modal-icon    { font-size: 32px; margin-bottom: 14px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+// ── Stat cards ────────────────────────────────────────────────────────────────
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #f0f5f0;
+  border: 1px solid rgba(2, 79, 43, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 3px;
+}
+
+.stat-sub { font-size: 11px; color: var(--text2); }
+
+// ── Audit rows (Quality 5S) ───────────────────────────────────────────────────
+.aval-row {
+  background: #f8faf8;
+  border: 1px solid rgba(2, 79, 43, 0.10);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.aval-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.aval-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// ── Fatal SST banner ──────────────────────────────────────────────────────────
+.fatal-banner {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+.divider    { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+.empty-state { text-align: center; padding: 36px; color: var(--text3); font-size: 13px; }
+.mono       { font-family: 'DM Mono', monospace; }

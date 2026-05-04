@@ -1,0 +1,56 @@
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+input,
+select,
+textarea {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 11px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #024f2b;
+    box-shadow: 0 0 0 3px rgba(2, 79, 43, 0.10);
+  }
+}
+
+select option {
+  background: var(--surface2);
+}
+
+input[type='password'] {
+  letter-spacing: 0.1em;
+}
+
+.input-score {
+  width: 85px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+}
