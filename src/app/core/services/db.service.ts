@@ -1,14 +1,16 @@
-import { Injectable, signal, computed } from '@angular/core';
-import type { Db, Indicator, DbPasswords } from '../models';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import type { Db, Indicator } from '../models';
 import type { Direction, Format, Periodicity } from '../models';
 import type { SstIncident } from '../models';
 import { defaultDb } from '../data/default-db.data';
+import { FirebaseService } from './firebase.service';
 
 const STORAGE_KEY = 'sistema_variavel_v2';
 const LEGACY_KEY  = 'variavel_unificado_v1';
 
 @Injectable({ providedIn: 'root' })
 export class DbService {
+  private readonly firebase = inject(FirebaseService);
   private readonly _db = signal<Db>(this.loadInitialState());
 
   readonly db           = this._db.asReadonly();
@@ -61,8 +63,19 @@ export class DbService {
     return defaultDb();
   }
 
+  async syncFromCloud(): Promise<boolean> {
+    const remote = await this.firebase.load();
+    if (!remote || typeof remote !== 'object') return false;
+    if ((remote as Db)['version'] !== 2) return false;
+    const db = remote as Db;
+    this._db.set(db);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    return true;
+  }
+
   private persist(db: Db): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    this.firebase.save(db);
   }
 }
 

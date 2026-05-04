@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
+import { FirebaseService } from '../../core/services/firebase.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { ROUTE_LABELS } from '../../core/routes.map';
 
@@ -13,7 +14,8 @@ export class ExportComponent {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title = ROUTE_LABELS.export;
+  protected readonly firebase = inject(FirebaseService);
+  protected readonly title    = ROUTE_LABELS.export;
 
   protected exportJson(): void {
     const period = this.db.currentPeriod();
@@ -58,5 +60,10 @@ export class ExportComponent {
     )) return;
     this.db.reset();
     this.toast.show('Sistema restaurado para o padrão.');
+  }
+
+  protected async syncFromCloud(): Promise<void> {
+    const ok = await this.db.syncFromCloud();
+    this.toast.show(ok ? 'Dados sincronizados da nuvem!' : 'Nenhum dado encontrado na nuvem.', ok ? 'success' : 'error');
   }
 }

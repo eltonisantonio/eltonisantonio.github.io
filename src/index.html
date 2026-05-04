@@ -10,6 +10,19 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <!-- Firebase compat SDK (no package install needed) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      firebase.initializeApp({
+        apiKey:            "AIzaSyDqLvQplHilhuR-NRV0yeBPdad6OlVbLpw",
+        authDomain:        "sistema-variavel-raguife.firebaseapp.com",
+        projectId:         "sistema-variavel-raguife",
+        storageBucket:     "sistema-variavel-raguife.firebasestorage.app",
+        messagingSenderId: "783355543038",
+        appId:             "1:783355543038:web:ca6b599ee436341516d4af"
+      });
+    </script>
   </head>
   <body>
     <app-root></app-root>

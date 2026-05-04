@@ -30,6 +30,28 @@
     </label>
   </div>
 
+  <!-- Cloud sync -->
+  <div class="card">
+    <div class="card-title">Sincronização Firebase</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:8px">
+      Salva automaticamente na nuvem a cada alteração. Use os botões abaixo para forçar ou carregar.
+    </p>
+    @let st = firebase.status();
+    <p style="font-size:12px;margin-bottom:16px">
+      Status:&nbsp;
+      @if (st === 'saving') { <span style="color:var(--amber)">Salvando…</span> }
+      @else if (st === 'loading') { <span style="color:var(--amber)">Carregando…</span> }
+      @else if (st === 'ok') { <span style="color:var(--green)">Sincronizado às {{ firebase.lastSync() }}</span> }
+      @else if (st === 'error') { <span style="color:var(--red)">Erro de conexão</span> }
+      @else { <span style="color:var(--text2)">Aguardando</span> }
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" (click)="syncFromCloud()" [disabled]="st === 'loading' || st === 'saving'">
+        ↓ Carregar da nuvem
+      </button>
+    </div>
+  </div>
+
   <!-- Reset -->
   <div class="card" style="border-color:rgba(248,113,113,0.25)">
     <div class="card-title">Restaurar Padrão</div>
