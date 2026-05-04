@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ROUTE_PATHS } from './core/routes.map';
+import { areaLockGuard } from './core/guards/area-lock.guard';
 
 export const routes: Routes = [
   {
@@ -10,26 +11,31 @@ export const routes: Routes = [
       { path: '', redirectTo: ROUTE_PATHS.managers, pathMatch: 'full' },
       {
         path: ROUTE_PATHS.results,
+        canActivate: [areaLockGuard('planning')],
         loadComponent: () =>
           import('./features/results/results.component').then(m => m.ResultsComponent),
       },
       {
         path: ROUTE_PATHS.indicators,
+        canActivate: [areaLockGuard('planning')],
         loadComponent: () =>
           import('./features/indicators/indicators.component').then(m => m.IndicatorsComponent),
       },
       {
         path: ROUTE_PATHS.sectors,
+        canActivate: [areaLockGuard('planning')],
         loadComponent: () =>
           import('./features/sectors/sectors.component').then(m => m.SectorsComponent),
       },
       {
         path: ROUTE_PATHS.quality,
+        canActivate: [areaLockGuard('quality')],
         loadComponent: () =>
           import('./features/quality/quality.component').then(m => m.QualityComponent),
       },
       {
         path: ROUTE_PATHS.sstRegister,
+        canActivate: [areaLockGuard('sst')],
         children: [
           {
             path: '',

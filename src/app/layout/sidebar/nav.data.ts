@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '../../core/routes.map';
+import type { LockArea } from '../../core/models';
 
-export type LockArea = 'planning' | 'quality' | 'sst';
+export type { LockArea };
 
 export interface NavItem {
   label: string;

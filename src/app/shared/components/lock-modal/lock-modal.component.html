@@ -1,0 +1,31 @@
+@if (pendingUnlock(); as pending) {
+  <div class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon">{{ areaConfig[pending.area].icon }}</div>
+      <div class="modal-title">{{ areaConfig[pending.area].title }}</div>
+      <div class="modal-sub">Insira a senha para continuar.</div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label for="lock-password">Senha</label>
+          <input
+            id="lock-password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+        </div>
+
+        @if (hasError()) {
+          <p class="form-error">Senha incorreta. Tente novamente.</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" (click)="cancel()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
