@@ -1,0 +1,131 @@
+<!-- Shift tabs -->
+@if (shifts().length > 0) {
+  <div class="tabs-inline">
+    @for (shift of shifts(); track shift) {
+      <div class="tab-inline" [class.active]="activeShift() === shift" (click)="selectShift(shift)">
+        {{ shift }}
+      </div>
+    }
+  </div>
+}
+
+<!-- Role tabs -->
+@if (roles().length > 0) {
+  <div class="tabs-inline" style="margin-top:-8px">
+    <div class="tab-inline" [class.active]="activeRole() === ''" (click)="selectRole('')">Todos</div>
+    @for (role of roles(); track role) {
+      <div class="tab-inline" [class.active]="activeRole() === role" (click)="selectRole(role)">
+        {{ role }}
+      </div>
+    }
+  </div>
+}
+
+<!-- Periodicity tabs -->
+@if (hasMultiplePeriods()) {
+  <div class="tabs-inline" style="margin-top:-8px">
+    <div class="tab-inline" [class.active]="activePeriodicity() === ''" (click)="selectPeriodicity('')">Todos</div>
+    @for (p of periodicities(); track p) {
+      <div class="tab-inline" [class.active]="activePeriodicity() === p" (click)="selectPeriodicity(p)">
+        {{ periodicityLabels[p] }}
+      </div>
+    }
+  </div>
+}
+
+<!-- Empty state -->
+@if (rowData().length === 0) {
+  <div class="empty-state">Nenhum indicador cadastrado para este setor/turno.</div>
+} @else {
+  @let rows = rowData();
+  @let tot  = totals();
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Indicador</th>
+          <th>Periodicidade</th>
+          <th>Sentido</th>
+          <th>Peso</th>
+          <th>85%</th>
+          <th>90%</th>
+          <th>95%</th>
+          <th>100%</th>
+          <th style="min-width:130px">Resultado</th>
+          <th>Ating.</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.ind.id) {
+          <tr [style.opacity]="row.countsThisMonth ? '1' : '0.55'">
+
+            <td style="font-weight:500">{{ row.ind.name }}</td>
+
+            <td>
+              <span [class]="row.periodicityClass">{{ periodicityLabels[row.ind.periodicity] }}</span>
+              @if (!row.countsThisMonth) {
+                <span class="period-tag inactive" style="margin-left:4px">não conta</span>
+              }
+            </td>
+
+            <td>
+              @if (row.ind.direction === 'higher') {
+                <span class="badge badge-green">↑ Maior</span>
+              } @else {
+                <span class="badge badge-blue">↓ Menor</span>
+              }
+            </td>
+
+            <td class="mono">{{ (row.ind.weight * 100).toFixed(0) }}%</td>
+
+            <td class="mono" style="color:var(--text2)">{{ fmt(row.ind.target85) }}</td>
+            <td class="mono" style="color:var(--text2)">{{ fmt(row.ind.target90) }}</td>
+            <td class="mono" style="color:var(--text2)">{{ fmt(row.ind.target95) }}</td>
+            <td class="mono" style="color:var(--text2);font-weight:600">{{ fmt(row.ind.target100) }}</td>
+
+            <td>
+              <div style="display:flex;align-items:center;gap:4px">
+                <input
+                  class="input-score"
+                  type="number"
+                  step="any"
+                  [value]="row.rawValue ?? ''"
+                  [style.opacity]="row.countsThisMonth ? '1' : '0.5'"
+                  (change)="saveResult(row.ind.id, $event)"
+                  placeholder="—">
+                @if (row.ind.format === 'integer') {
+                  <span style="font-size:10px;color:var(--text3)">%</span>
+                }
+              </div>
+            </td>
+
+            <td class="mono" style="font-weight:600" [style.color]="row.achievementColor">
+              {{ row.achievementDisplay }}
+            </td>
+
+            <td>
+              <button class="btn btn-ghost btn-xs" title="Limpar resultado"
+                      (click)="clearResult(row.ind.id)"
+                      style="padding:4px 8px;color:var(--text3)">✕</button>
+            </td>
+
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr class="sum-row">
+          <td colspan="3" style="color:var(--text2)">Total (indicadores que contam este mês)</td>
+          <td class="mono">{{ (tot.weight * 100).toFixed(0) }}%</td>
+          <td colspan="6"></td>
+          <td class="mono" style="font-size:15px" [style.color]="tot.color">{{ tot.display }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div style="margin-top:14px">
+    <button class="btn btn-ghost" (click)="clearAll()">Limpar tudo</button>
+  </div>
+}

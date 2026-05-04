@@ -1,0 +1,70 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-sub">Lance os resultados mensais por setor e turno</p>
+  </div>
+</div>
+
+<!-- Period & Billing row -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:18px">
+
+  <div class="card" style="margin-bottom:0">
+    <div class="card-title">Período de Avaliação</div>
+    <form [formGroup]="periodForm" (ngSubmit)="savePeriod()"
+          style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div class="form-group">
+        <label for="sel-month">Mês</label>
+        <select id="sel-month" formControlName="month">
+          @for (m of months; track m.value) {
+            <option [value]="m.value">{{ m.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="inp-year">Ano</label>
+        <input id="inp-year" type="number" formControlName="year" style="width:86px">
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="periodForm.invalid">Aplicar</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <div class="card-title">Faturamento</div>
+    <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div class="form-group">
+        <label for="inp-billing">Atingimento (0 – 10%)</label>
+        <input id="inp-billing" type="number" min="0" max="10" step="0.01"
+               [formControl]="billingControl" style="width:110px" placeholder="—">
+      </div>
+      @if (billingPreview() !== null) {
+        <div style="padding-bottom:9px;font-size:13px;color:var(--text2)">
+          Prévia:&nbsp;<strong style="color:#024f2b;font-family:'DM Mono',monospace">
+            +{{ billingPreview() }}%
+          </strong>
+        </div>
+      }
+      <button class="btn btn-primary" type="button" (click)="saveBilling()">Salvar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Sector chips -->
+<div class="card">
+  <div class="card-title">Setores</div>
+  <div>
+    @for (s of sectors(); track s) {
+      <button class="sector-chip" [class.active]="activeSector() === s" (click)="selectSector(s)">
+        {{ s }}
+      </button>
+    }
+  </div>
+</div>
+
+<!-- Results table -->
+@if (activeSector(); as sector) {
+  <div class="card">
+    <div class="card-title">Indicadores — {{ sector }}</div>
+    <app-results-table [sector]="sector" />
+  </div>
+}
