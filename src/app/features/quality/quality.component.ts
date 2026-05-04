@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { MONTHS_PT } from '../../core/utils/format.utils';
 import { ROUTE_LABELS } from '../../core/routes.map';
 
@@ -31,7 +32,8 @@ const EMPTY_SLOT: AuditSlot = { score: null, date: '', auditor: '' };
   templateUrl: './quality.component.html',
 })
 export class QualityComponent {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title   = ROUTE_LABELS.quality;
   protected readonly sectors = computed(() => this.db.sectors());
@@ -140,6 +142,7 @@ export class QualityComponent {
       ...db,
       audits5S: { ...db.audits5S, [key]: avals },
     }));
+    this.toast.show('Avaliações salvas!');
   }
 
   protected clearCurrent(): void {
@@ -152,6 +155,7 @@ export class QualityComponent {
       delete audits5S[key];
       return { ...db, audits5S };
     });
+    this.toast.show('Avaliações limpas.');
   }
 
   // ── History ────────────────────────────────────────────────────────────────
@@ -184,5 +188,6 @@ export class QualityComponent {
       delete audits5S[key];
       return { ...db, audits5S };
     });
+    this.toast.show('Registro removido.');
   }
 }

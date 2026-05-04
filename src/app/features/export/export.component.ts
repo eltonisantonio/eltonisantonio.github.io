@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { ROUTE_LABELS } from '../../core/routes.map';
 
 @Component({
@@ -9,7 +10,8 @@ import { ROUTE_LABELS } from '../../core/routes.map';
   templateUrl: './export.component.html',
 })
 export class ExportComponent {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title = ROUTE_LABELS.export;
 
@@ -21,6 +23,7 @@ export class ExportComponent {
     a.download   = `variavel_dados_${period}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
+    this.toast.show('Arquivo exportado!');
   }
 
   protected importJson(event: Event): void {
@@ -40,8 +43,9 @@ export class ExportComponent {
 
         if (!confirm(`Importar "${file.name}"? Os dados atuais serão substituídos.`)) return;
         this.db.update(() => raw);
+        this.toast.show('Dados importados com sucesso!');
       } catch {
-        alert('Erro ao ler o arquivo. Verifique se é um JSON válido exportado por este sistema.');
+        this.toast.show('Erro ao ler o arquivo JSON.', 'error');
       }
     };
     reader.readAsText(file);
@@ -53,5 +57,6 @@ export class ExportComponent {
       'Isso apagará TODOS os dados (resultados, 5S, SST, configurações) e restaurará os indicadores padrão. Esta ação não pode ser desfeita. Confirmar?',
     )) return;
     this.db.reset();
+    this.toast.show('Sistema restaurado para o padrão.');
   }
 }

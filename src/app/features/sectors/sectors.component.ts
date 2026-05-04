@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { ROUTE_LABELS } from '../../core/routes.map';
 
 @Component({
@@ -10,7 +11,8 @@ import { ROUTE_LABELS } from '../../core/routes.map';
   templateUrl: './sectors.component.html',
 })
 export class SectorsComponent {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title   = ROUTE_LABELS.sectors;
   protected readonly sectors = computed(() => this.db.sectors());
@@ -35,6 +37,7 @@ export class SectorsComponent {
     }
     this.db.update(db => ({ ...db, sectors: [...db.sectors, name] }));
     this.newSectorCtrl.reset('');
+    this.toast.show('Setor adicionado!');
   }
 
   protected removeSector(sector: string): void {
@@ -44,6 +47,7 @@ export class SectorsComponent {
       sectors:    db.sectors.filter(s => s !== sector),
       indicators: db.indicators.filter(i => i.sector !== sector),
     }));
+    this.toast.show('Setor removido.');
   }
 
   // ── Shifts ─────────────────────────────────────────────────────────────────
@@ -57,10 +61,12 @@ export class SectorsComponent {
     }
     this.db.update(db => ({ ...db, shifts: [...db.shifts, name] }));
     this.newShiftCtrl.reset('');
+    this.toast.show('Turno adicionado!');
   }
 
   protected removeShift(shift: string): void {
     if (!confirm(`Remover "${shift}"? Os indicadores vinculados não serão excluídos.`)) return;
     this.db.update(db => ({ ...db, shifts: db.shifts.filter(s => s !== shift) }));
+    this.toast.show('Turno removido.');
   }
 }

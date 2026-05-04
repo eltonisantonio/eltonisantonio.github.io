@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { ROUTE_LABELS } from '../../core/routes.map';
 import type { SstIncidentType } from '../../core/models';
 
@@ -18,7 +19,8 @@ const INCIDENT_TYPES: SstIncidentType[] = [
   templateUrl: './sst-register.component.html',
 })
 export class SstRegisterComponent {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title         = ROUTE_LABELS.sstRegister;
   protected readonly incidentTypes = INCIDENT_TYPES;
@@ -59,6 +61,7 @@ export class SstRegisterComponent {
     }));
 
     this.form.patchValue({ date: '', description: '' });
+    this.toast.show(`Incidente registrado para ${sector}.`);
   }
 
   // ── Fatal toggle ───────────────────────────────────────────────────────────
@@ -72,6 +75,7 @@ export class SstRegisterComponent {
       return;
     }
     this.db.update(db => ({ ...db, sstFatalActive: checked }));
+    this.toast.show(checked ? 'Acidente fatal ativado.' : 'Acidente fatal desativado.');
   }
 
   // ── Delete ─────────────────────────────────────────────────────────────────
@@ -82,5 +86,6 @@ export class SstRegisterComponent {
       ...db,
       sstIncidents: db.sstIncidents.filter(i => i.id !== id),
     }));
+    this.toast.show('Incidente removido.');
   }
 }

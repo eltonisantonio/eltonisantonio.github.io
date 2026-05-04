@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { formatValue } from '../../core/utils/format.utils';
 import { ROUTE_LABELS } from '../../core/routes.map';
 import type { Indicator, Direction, Format, Periodicity } from '../../core/models';
@@ -21,7 +22,8 @@ const CLOSING_MONTH: Record<Periodicity, number | null> = {
   templateUrl: './indicators.component.html',
 })
 export class IndicatorsComponent {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title    = ROUTE_LABELS.indicators;
   protected readonly fmt      = formatValue;
@@ -121,11 +123,13 @@ export class IndicatorsComponent {
           i.id === state.indicator.id ? { ...i, ...partial } : i,
         ),
       }));
+      this.toast.show('Indicador atualizado!');
     } else {
       this.db.update(db => ({
         ...db,
         indicators: [...db.indicators, { id: Date.now(), ...partial }],
       }));
+      this.toast.show('Indicador adicionado!');
     }
 
     this.closeModal();
@@ -139,6 +143,7 @@ export class IndicatorsComponent {
       ...db,
       indicators: db.indicators.filter(i => i.id !== ind.id),
     }));
+    this.toast.show('Indicador removido.');
   }
 
   // ── Filter helper ──────────────────────────────────────────────────────────

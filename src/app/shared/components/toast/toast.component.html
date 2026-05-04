@@ -1,0 +1,10 @@
+<div style="position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:8px;z-index:999">
+  @for (msg of toastSvc.messages(); track msg.id) {
+    <div class="toast show" [class.error]="msg.type === 'error'"
+         style="position:relative;transform:none;opacity:1">
+      {{ msg.text }}
+      <button (click)="toastSvc.dismiss(msg.id)"
+              style="background:none;border:none;color:inherit;cursor:pointer;margin-left:10px;opacity:0.7;font-size:14px;padding:0">✕</button>
+    </div>
+  }
+</div>

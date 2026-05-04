@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { DbService } from '../../core/services/db.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { ResultsTableComponent } from './results-table.component';
 import { ROUTE_LABELS } from '../../core/routes.map';
 
@@ -18,7 +19,8 @@ const MONTHS_FULL = [
   templateUrl: './results.component.html',
 })
 export class ResultsComponent implements OnInit {
-  private readonly db = inject(DbService);
+  private readonly db    = inject(DbService);
+  private readonly toast = inject(ToastService);
 
   protected readonly title   = ROUTE_LABELS.results;
   protected readonly months  = MONTHS_FULL.map((label, i) => ({ value: i + 1, label }));
@@ -66,6 +68,7 @@ export class ResultsComponent implements OnInit {
     const period = `${year}-${String(month).padStart(2, '0')}`;
     this.db.update(db => ({ ...db, currentPeriod: period }));
     this.syncBillingField(period);
+    this.toast.show('Período atualizado!');
   }
 
   protected saveBilling(): void {
@@ -73,6 +76,7 @@ export class ResultsComponent implements OnInit {
     if (v === null || isNaN(Number(v)) || Number(v) < 0 || Number(v) > 10) return;
     const period = this.db.currentPeriod();
     this.db.update(db => ({ ...db, billing: { ...db.billing, [period]: Number(v) } }));
+    this.toast.show('Faturamento salvo!');
   }
 
   protected selectSector(sector: string): void {
