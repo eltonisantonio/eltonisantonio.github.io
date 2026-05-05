@@ -6,12 +6,11 @@ import { ToastService } from '../../shared/services/toast.service';
 import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
-  selector: 'app-config',
   standalone: true,
   imports: [ReactiveFormsModule],
-  templateUrl: './config.component.html',
+  templateUrl: './settings.component.html',
 })
-export class ConfigComponent {
+export class SettingsComponent {
   private readonly db    = inject(DbService);
   private readonly auth  = inject(AuthService);
   private readonly toast = inject(ToastService);

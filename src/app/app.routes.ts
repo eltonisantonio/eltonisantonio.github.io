@@ -16,66 +16,55 @@ export const routes: Routes = [
       {
         path: APP_ROUTES.results.path,
         canActivate: [areaLockGuard('planning')],
-        loadComponent: () => import(
-          './features/results/results.component'
-        ).then(m => m.ResultsComponent),
+        loadChildren: () => import(
+          './features/results/results.routes'
+        ).then(m => m.RESULTS_ROUTES),
       },
       {
         path: APP_ROUTES.indicators.path,
         canActivate: [areaLockGuard('planning')],
-        loadComponent: () => import(
-          './features/indicators/indicators.component'
-        ).then(m => m.IndicatorsComponent),
+        loadChildren: () => import(
+          './features/indicators/indicators.routes'
+        ).then(m => m.INDICATORS_ROUTES),
       },
       {
         path: APP_ROUTES.sectors.path,
         canActivate: [areaLockGuard('planning')],
-        loadComponent: () => import(
-          './features/sectors/sectors.component'
-        ).then(m => m.SectorsComponent),
+        loadChildren: () => import(
+          './features/sectors/sectors.routes'
+        ).then(m => m.SECTORS_ROUTES),
       },
       {
         path: APP_ROUTES.quality.path,
         canActivate: [areaLockGuard('quality')],
-        loadComponent: () => import(
-          './features/quality/quality.component'
-        ).then(m => m.QualityComponent),
+        loadChildren: () => import(
+          './features/quality/quality.routes'
+        ).then(m => m.QUALITY_ROUTES),
       },
       {
         path: APP_ROUTES.sstRegister.path,
         canActivate: [areaLockGuard('sst')],
-        children: [
-          {
-            path: '',
-            loadComponent: () => import(
-              './features/sst/sst-register.component'
-            ).then(m => m.SstRegisterComponent),
-          },
-          {
-            path: APP_ROUTES.sstStatus.path,
-            loadComponent: () => import(
-              './features/sst/sst-status.component'
-            ).then(m => m.SstStatusComponent),
-          },
-        ],
+        loadChildren: () => import(
+          './features/sst/sst.routes'
+        ).then(m => m.SST_ROUTES),
       },
       {
         path: APP_ROUTES.managers.path,
-        loadComponent: () => import(
-          './features/managers/managers.component'
-        ).then(m => m.ManagersComponent),
+        loadChildren: () => import(
+          './features/managers/managers.routes'
+        ).then(m => m.MANAGERS_ROUTES),
       },
       {
         path: APP_ROUTES.export.path,
-        loadComponent: () => import(
-          './features/export/export.component'
-        ).then(m => m.ExportComponent),
+        loadChildren: () => import(
+          './features/export/export.routes'
+        ).then(m => m.EXPORT_ROUTES),
       },
       {
         path: APP_ROUTES.settings.path,
-        loadComponent: () => import(
-          './features/config/config.component'
-        ).then(m => m.ConfigComponent),
+        loadChildren: () => import(
+          './features/settings/settings.routes'
+        ).then(m => m.SETTINGS_ROUTES),
       },
     ],
   },
