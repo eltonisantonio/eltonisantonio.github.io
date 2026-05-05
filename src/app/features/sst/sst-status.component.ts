@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
 import { ScoringService } from '../../core/services/scoring.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 interface StatusRow {
   sector:   string;
@@ -23,7 +23,7 @@ export class SstStatusComponent {
   private readonly scoring = inject(ScoringService);
   private readonly toast   = inject(ToastService);
 
-  protected readonly title       = ROUTE_LABELS.sstStatus;
+  protected readonly title       = APP_ROUTES.sstStatus.label;
   protected readonly fatalActive = computed(() => this.db.sstFatalActive());
   protected readonly period      = computed(() => this.db.currentPeriod());
   protected readonly sectors     = computed(() => this.db.sectors());

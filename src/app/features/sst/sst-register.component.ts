@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 import type { SstIncidentType } from '../../core/models';
 
 const INCIDENT_TYPES: SstIncidentType[] = [
@@ -22,7 +22,7 @@ export class SstRegisterComponent {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title         = ROUTE_LABELS.sstRegister;
+  protected readonly title         = APP_ROUTES.sstRegister.label;
   protected readonly incidentTypes = INCIDENT_TYPES;
   protected readonly sectors       = computed(() => this.db.sectors());
   protected readonly fatalActive   = computed(() => this.db.sstFatalActive());

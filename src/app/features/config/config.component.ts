@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
   selector: 'app-config',
@@ -16,7 +16,7 @@ export class ConfigComponent {
   private readonly auth  = inject(AuthService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title     = ROUTE_LABELS.config;
+  protected readonly title     = APP_ROUTES.config.label;
   protected readonly passwords = computed(() => this.db.passwords());
 
   protected readonly form = new FormGroup({

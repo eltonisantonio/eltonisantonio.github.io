@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
 import { ScoringService } from '../../core/services/scoring.service';
 import { formatSignedPercent, getScoreStatus, MONTHS_PT } from '../../core/utils/format.utils';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 import type { ScoreBreakdown, ScoreStatus } from '../../core/models';
 import type { Periodicity } from '../../core/models';
 
@@ -40,7 +40,7 @@ export class ManagersComponent {
   private readonly db      = inject(DbService);
   private readonly scoring = inject(ScoringService);
 
-  protected readonly title  = ROUTE_LABELS.managers;
+  protected readonly title  = APP_ROUTES.managers.label;
   protected readonly fmtPct = formatSignedPercent;
 
   protected readonly PERIOD_LABELS: Record<Periodicity, string> = {

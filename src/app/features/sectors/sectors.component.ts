@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { DbService } from '../../core/services/db.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
   selector: 'app-sectors',
@@ -14,7 +14,7 @@ export class SectorsComponent {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title   = ROUTE_LABELS.sectors;
+  protected readonly title   = APP_ROUTES.sectors.label;
   protected readonly sectors = computed(() => this.db.sectors());
   protected readonly shifts  = computed(() => this.db.shifts());
 

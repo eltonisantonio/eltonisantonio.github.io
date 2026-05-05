@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { DbService } from '../../core/services/db.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { MONTHS_PT } from '../../core/utils/format.utils';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 const MONTHS_FULL = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -35,7 +35,7 @@ export class QualityComponent {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title   = ROUTE_LABELS.quality;
+  protected readonly title   = APP_ROUTES.quality.label;
   protected readonly sectors = computed(() => this.db.sectors());
   protected readonly months  = MONTHS_FULL.map((label, i) => ({
     label,

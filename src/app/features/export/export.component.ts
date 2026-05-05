@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { DbService } from '../../core/services/db.service';
 import { FirebaseService } from '../../core/services/firebase.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
   selector: 'app-export',
@@ -15,7 +15,7 @@ export class ExportComponent {
   private readonly toast = inject(ToastService);
 
   protected readonly firebase = inject(FirebaseService);
-  protected readonly title    = ROUTE_LABELS.export;
+  protected readonly title    = APP_ROUTES.export.label;
 
   protected exportJson(): void {
     const period = this.db.currentPeriod();

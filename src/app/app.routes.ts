@@ -1,68 +1,82 @@
 import { Routes } from '@angular/router';
-import { ROUTE_PATHS } from './core/routes.map';
+import { APP_ROUTES } from './core/configs/app-routes';
 import { areaLockGuard } from './core/guards/area-lock.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./layout/shell/shell.component').then(m => m.ShellComponent),
+    loadComponent: () => import(
+      './layout/shell/shell.component'
+    ).then(m => m.ShellComponent),
     children: [
-      { path: '', redirectTo: ROUTE_PATHS.managers, pathMatch: 'full' },
       {
-        path: ROUTE_PATHS.results,
-        canActivate: [areaLockGuard('planning')],
-        loadComponent: () =>
-          import('./features/results/results.component').then(m => m.ResultsComponent),
+        path: '',
+        redirectTo: APP_ROUTES.managers.path,
+        pathMatch: 'full'
       },
       {
-        path: ROUTE_PATHS.indicators,
+        path: APP_ROUTES.results.path,
         canActivate: [areaLockGuard('planning')],
-        loadComponent: () =>
-          import('./features/indicators/indicators.component').then(m => m.IndicatorsComponent),
+        loadComponent: () => import(
+          './features/results/results.component'
+        ).then(m => m.ResultsComponent),
       },
       {
-        path: ROUTE_PATHS.sectors,
+        path: APP_ROUTES.indicators.path,
         canActivate: [areaLockGuard('planning')],
-        loadComponent: () =>
-          import('./features/sectors/sectors.component').then(m => m.SectorsComponent),
+        loadComponent: () => import(
+          './features/indicators/indicators.component'
+        ).then(m => m.IndicatorsComponent),
       },
       {
-        path: ROUTE_PATHS.quality,
+        path: APP_ROUTES.sectors.path,
+        canActivate: [areaLockGuard('planning')],
+        loadComponent: () => import(
+          './features/sectors/sectors.component'
+        ).then(m => m.SectorsComponent),
+      },
+      {
+        path: APP_ROUTES.quality.path,
         canActivate: [areaLockGuard('quality')],
-        loadComponent: () =>
-          import('./features/quality/quality.component').then(m => m.QualityComponent),
+        loadComponent: () => import(
+          './features/quality/quality.component'
+        ).then(m => m.QualityComponent),
       },
       {
-        path: ROUTE_PATHS.sstRegister,
+        path: APP_ROUTES.sstRegister.path,
         canActivate: [areaLockGuard('sst')],
         children: [
           {
             path: '',
-            loadComponent: () =>
-              import('./features/sst/sst-register.component').then(m => m.SstRegisterComponent),
+            loadComponent: () => import(
+              './features/sst/sst-register.component'
+            ).then(m => m.SstRegisterComponent),
           },
           {
-            path: ROUTE_PATHS.sstStatus,
-            loadComponent: () =>
-              import('./features/sst/sst-status.component').then(m => m.SstStatusComponent),
+            path: APP_ROUTES.sstStatus.path,
+            loadComponent: () => import(
+              './features/sst/sst-status.component'
+            ).then(m => m.SstStatusComponent),
           },
         ],
       },
       {
-        path: ROUTE_PATHS.managers,
-        loadComponent: () =>
-          import('./features/managers/managers.component').then(m => m.ManagersComponent),
+        path: APP_ROUTES.managers.path,
+        loadComponent: () => import(
+          './features/managers/managers.component'
+        ).then(m => m.ManagersComponent),
       },
       {
-        path: ROUTE_PATHS.export,
-        loadComponent: () =>
-          import('./features/export/export.component').then(m => m.ExportComponent),
+        path: APP_ROUTES.export.path,
+        loadComponent: () => import(
+          './features/export/export.component'
+        ).then(m => m.ExportComponent),
       },
       {
-        path: ROUTE_PATHS.config,
-        loadComponent: () =>
-          import('./features/config/config.component').then(m => m.ConfigComponent),
+        path: APP_ROUTES.config.path,
+        loadComponent: () => import(
+          './features/config/config.component'
+        ).then(m => m.ConfigComponent),
       },
     ],
   },

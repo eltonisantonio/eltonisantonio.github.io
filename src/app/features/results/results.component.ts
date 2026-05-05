@@ -5,7 +5,7 @@ import { startWith } from 'rxjs';
 import { DbService } from '../../core/services/db.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { ResultsTableComponent } from './results-table.component';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 
 const MONTHS_FULL = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -22,7 +22,7 @@ export class ResultsComponent implements OnInit {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title   = ROUTE_LABELS.results;
+  protected readonly title   = APP_ROUTES.results.label;
   protected readonly months  = MONTHS_FULL.map((label, i) => ({ value: i + 1, label }));
 
   protected readonly sectors = computed(() =>

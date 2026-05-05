@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { DbService } from '../../core/services/db.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { formatValue } from '../../core/utils/format.utils';
-import { ROUTE_LABELS } from '../../core/routes.map';
+import { APP_ROUTES } from '../../core/configs/app-routes';
 import type { Indicator, Direction, Format, Periodicity } from '../../core/models';
 
 type ModalState =
@@ -25,7 +25,7 @@ export class IndicatorsComponent {
   private readonly db    = inject(DbService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title    = ROUTE_LABELS.indicators;
+  protected readonly title    = APP_ROUTES.indicators.label;
   protected readonly fmt      = formatValue;
   protected readonly sectors  = computed(() => this.db.sectors());
   protected readonly shifts   = computed(() => this.db.shifts());
