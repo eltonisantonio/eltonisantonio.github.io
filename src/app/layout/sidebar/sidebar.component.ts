@@ -15,6 +15,7 @@ type SafeNavSection = Omit<NavSection, 'items'> & { items: SafeNavItem[] };
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
   private readonly db        = inject(DbService);
