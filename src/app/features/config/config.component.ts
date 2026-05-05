@@ -16,7 +16,7 @@ export class ConfigComponent {
   private readonly auth  = inject(AuthService);
   private readonly toast = inject(ToastService);
 
-  protected readonly title     = APP_ROUTES.config.label;
+  protected readonly title     = APP_ROUTES.settings.label;
   protected readonly passwords = computed(() => this.db.passwords());
 
   protected readonly form = new FormGroup({

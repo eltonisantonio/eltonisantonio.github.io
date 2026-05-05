@@ -36,7 +36,7 @@ export const APP_ROUTES = {
     path: 'exportar',
     label: 'Exportar / Importar',
   },
-  config: {
+  settings: {
     path: 'configuracoes',
     label: 'Configurações',
   },

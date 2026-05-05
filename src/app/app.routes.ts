@@ -72,7 +72,7 @@ export const routes: Routes = [
         ).then(m => m.ExportComponent),
       },
       {
-        path: APP_ROUTES.config.path,
+        path: APP_ROUTES.settings.path,
         loadComponent: () => import(
           './features/config/config.component'
         ).then(m => m.ConfigComponent),

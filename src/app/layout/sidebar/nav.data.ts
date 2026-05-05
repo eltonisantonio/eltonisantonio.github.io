@@ -93,7 +93,7 @@ export const NAV_SECTIONS: NavSection[] = [
       },
       {
         label: 'Configurações',
-        routerLink: ['/', APP_ROUTES.config.path],
+        routerLink: ['/', APP_ROUTES.settings.path],
         icon: `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14M3.5 3.5l1 1M11.5 11.5l1 1M12.5 3.5l-1 1M4.5 11.5l-1 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`,
       },
     ],
