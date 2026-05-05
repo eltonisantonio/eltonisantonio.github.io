@@ -1,0 +1,11 @@
+:host {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+main {
+  padding: 28px 32px;
+  overflow-y: auto;
+  min-width: 0;
+}

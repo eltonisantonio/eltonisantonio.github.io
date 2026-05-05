@@ -5,23 +5,14 @@ import { LockModalComponent } from '../../shared/components/lock-modal/lock-moda
 import { ToastComponent } from '../../shared/components/toast/toast.component';
 
 @Component({
-  selector: 'app-shell',
-  standalone: true,
+standalone: true,
   imports: [
     RouterOutlet,
     SidebarComponent,
     LockModalComponent,
     ToastComponent
   ],
-  template: `
-    <div class="app">
-      <app-sidebar />
-      <main class="main">
-        <router-outlet />
-      </main>
-    </div>
-    <app-lock-modal />
-    <app-toast />
-  `,
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
 })
 export class MainLayout {}
