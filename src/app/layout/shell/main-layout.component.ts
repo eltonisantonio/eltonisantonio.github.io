@@ -7,7 +7,12 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, LockModalComponent, ToastComponent],
+  imports: [
+    RouterOutlet,
+    SidebarComponent,
+    LockModalComponent,
+    ToastComponent
+  ],
   template: `
     <div class="app">
       <app-sidebar />
@@ -19,4 +24,4 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
     <app-toast />
   `,
 })
-export class ShellComponent {}
+export class MainLayout {}

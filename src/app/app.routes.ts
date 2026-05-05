@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
 import { APP_ROUTES } from './core/configs/app-routes';
 import { areaLockGuard } from './core/guards/area-lock.guard';
+import { MainLayout } from './layout/shell/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import(
-      './layout/shell/shell.component'
-    ).then(m => m.ShellComponent),
+    component: MainLayout,
     children: [
       {
         path: '',
