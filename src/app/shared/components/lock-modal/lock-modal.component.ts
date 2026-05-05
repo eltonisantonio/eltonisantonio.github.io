@@ -11,7 +11,7 @@ const AREA_CONFIG: Record<LockArea, { title: string; icon: string }> = {
 };
 
 @Component({
-  selector: 'app-lock-modal',
+  selector: 'lock-modal',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './lock-modal.component.html',

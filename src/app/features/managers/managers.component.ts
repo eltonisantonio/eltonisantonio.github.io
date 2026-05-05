@@ -31,7 +31,6 @@ interface ManagerRow {
 }
 
 @Component({
-  selector: 'app-managers',
   standalone: true,
   imports: [],
   templateUrl: './managers.component.html',

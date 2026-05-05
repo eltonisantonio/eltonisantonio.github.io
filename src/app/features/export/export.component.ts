@@ -5,7 +5,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
-  selector: 'app-export',
   standalone: true,
   imports: [],
   templateUrl: './export.component.html',

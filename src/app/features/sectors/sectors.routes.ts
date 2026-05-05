@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { SectorsComponent } from './sectors.component';
 
-export const SECTORS_ROUTES: Routes = [
+export default [
   {
     path: '',
     component: SectorsComponent,
   },
-];
+] satisfies Routes;

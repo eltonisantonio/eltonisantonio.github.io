@@ -13,7 +13,6 @@ interface StatusRow {
 }
 
 @Component({
-  selector: 'app-sst-status',
   standalone: true,
   imports: [],
   templateUrl: './sst-status.component.html',

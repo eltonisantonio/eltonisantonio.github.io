@@ -13,7 +13,6 @@ const INCIDENT_TYPES: SstIncidentType[] = [
 ];
 
 @Component({
-  selector: 'app-sst-register',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './sst-register.component.html',

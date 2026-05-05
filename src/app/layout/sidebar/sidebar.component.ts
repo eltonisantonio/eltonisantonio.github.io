@@ -11,7 +11,7 @@ type SafeNavItem    = NavItem    & { safeIcon: SafeHtml };
 type SafeNavSection = Omit<NavSection, 'items'> & { items: SafeNavItem[] };
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'sidebar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',

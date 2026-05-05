@@ -16,7 +16,6 @@ const CLOSING_MONTH: Record<Periodicity, number | null> = {
 };
 
 @Component({
-  selector: 'app-indicators',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './indicators.component.html',

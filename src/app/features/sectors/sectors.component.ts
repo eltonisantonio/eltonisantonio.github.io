@@ -5,7 +5,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { APP_ROUTES } from '../../core/configs/app-routes';
 
 @Component({
-  selector: 'app-sectors',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './sectors.component.html',

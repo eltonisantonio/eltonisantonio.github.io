@@ -29,7 +29,7 @@ interface Totals {
 }
 
 @Component({
-  selector: 'app-results-table',
+  selector: 'results-table',
   standalone: true,
   imports: [],
   templateUrl: './results-table.component.html',

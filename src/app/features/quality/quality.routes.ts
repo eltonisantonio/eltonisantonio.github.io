@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { QualityComponent } from './quality.component';
 
-export const QUALITY_ROUTES: Routes = [
+export default [
   {
     path: '',
     component: QualityComponent,
   },
-];
+] satisfies Routes;

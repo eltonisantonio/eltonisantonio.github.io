@@ -13,7 +13,6 @@ const MONTHS_FULL = [
 ];
 
 @Component({
-  selector: 'app-results',
   standalone: true,
   imports: [ReactiveFormsModule, ResultsTableComponent],
   templateUrl: './results.component.html',

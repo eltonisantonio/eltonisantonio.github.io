@@ -26,7 +26,6 @@ interface HistoryRow {
 const EMPTY_SLOT: AuditSlot = { score: null, date: '', auditor: '' };
 
 @Component({
-  selector: 'app-quality',
   standalone: true,
   imports: [],
   templateUrl: './quality.component.html',

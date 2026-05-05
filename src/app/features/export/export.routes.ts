@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { ExportComponent } from './export.component';
 
-export const EXPORT_ROUTES: Routes = [
+export default [
   {
     path: '',
     component: ExportComponent,
   },
-];
+] satisfies Routes;
