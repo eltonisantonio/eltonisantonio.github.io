@@ -1,0 +1,161 @@
+// Modern CSS reset
+// Sources: Josh Comeau's CSS Reset + Andy Bell's Modern Reset, adapted for Angular.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  // Prevents font size inflation on iOS when rotating
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+
+  // Typographic refinements
+  hanging-punctuation: first last;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.5;
+
+  // Subpixel antialiasing reads better at small sizes on macOS/iOS
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+}
+
+// Media elements don't overflow their container
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+// Form controls don't inherit typography by default in browsers
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+// Prevent long words from breaking layout in prose
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+// Headings don't get bold by default — components decide their weight
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: inherit;
+}
+
+// Links inherit color so components can style them intentionally
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Lists are unstyled — components add bullets/numbering when needed
+ul,
+ol {
+  list-style: none;
+}
+
+// Buttons are unstyled — component styles own all button appearance
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+// Inputs and textareas remove default browser outlines — replaced by
+// :focus-visible in component styles
+input,
+textarea,
+select {
+  outline: none;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+// Remove spinner arrows from number inputs
+input[type='number'] {
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+  }
+}
+
+// Tables don't collapse spacing by default
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+// Angular host elements are transparent by default (don't break layout)
+// Needed so flex/grid parents treat custom elements correctly
+:where(
+  app-root,
+  [appRootComponent],
+  ng-component,
+  router-outlet + *
+) {
+  display: contents;
+}
+
+// Respect user motion preferences
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Custom scrollbar — subtle, brand-tinted
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-full);
+
+  &:hover {
+    background: var(--border-strong);
+  }
+}

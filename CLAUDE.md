@@ -17,7 +17,7 @@ The `./src` project is the **ground-up rebuild** in Angular — cleaner, testabl
 | Framework | Angular 21 (standalone components, signals) |
 | Language | TypeScript 5.9 |
 | BaaS | Supabase (PostgreSQL + Auth + Realtime + RLS) |
-| Styling | Custom SCSS (replicate the PoC's visual design) |
+| Styling | Custom SCSS — design system in `src/styles/` (tokens, reset, typography) |
 | Icons | Lucide (`lucide-angular` — official Angular package) |
 | Formatting | Prettier (`.prettierrc` at root) |
 | Testing | Vitest |
@@ -185,6 +185,63 @@ npm test           # vitest — runs tests
 - **No obvious comments**: only comment when the *why* is non-obvious
 - **Icons**: use `lucide-angular` for all icons — no other icon library
 - **Prettier**: every file must pass Prettier before committing
+
+---
+
+## Styling
+
+### File structure
+
+```
+src/styles/
+  _tokens.scss      → design tokens (CSS custom properties)
+  _reset.scss       → modern CSS reset
+  _typography.scss  → type scale and text helpers
+src/styles.scss     → entry point (@use of the three partials above)
+src/index.html      → Google Fonts import (DM Sans + DM Mono) via <link> with preconnect
+```
+
+### Design tokens (`_tokens.scss`)
+
+Two-layer architecture:
+
+1. **Primitive palette** — raw hex values (`--green-800`, `--olive-500`, `--neutral-200`, etc.). Never used directly in component styles.
+2. **Semantic tokens** — what component CSS consumes (`--bg-surface`, `--text-primary`, `--brand-primary`, `--border-default`, etc.).
+
+Only the semantic layer changes between themes. All color values are **hexadecimal** (including alpha channel as `#rrggbbaa`).
+
+Key semantic token groups: `--bg-*`, `--text-*`, `--border-*`, `--brand-*`, `--color-*` (status), `--badge-*-bg`, `--shadow-*`, `--radius-*`, `--font-*`, `--transition-*`, `--sidebar-w`.
+
+### Dark mode
+
+Applied by **two complementary mechanisms** — never add one without the other:
+
+```scss
+// 1. OS preference (automatic), but respects a manual light override
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { ... }
+}
+
+// 2. Manual toggle
+[data-theme='dark'] { ... }
+```
+
+Toggle dark/light mode by setting `data-theme="dark"` or `data-theme="light"` on `<html>`.
+
+### Typography
+
+- **Base**: `html { font-size: 87.5% }` → `1rem = 14px` (scales with user's browser font size).
+- **Font sizes**: always use `rem`.
+- **Internal component spacing** (padding, gap): prefer `em` so it scales with the component's own font size.
+- **Fonts**: DM Sans (UI) + DM Mono (numeric values). Loaded in `index.html`, not in SCSS.
+
+### Component style rules
+
+- Always consume **semantic tokens** — never hardcode colors or reference primitive tokens.
+- Use `var(--shadow-card)` for cards, `var(--shadow-modal)` for modals.
+- Borders: `1px solid var(--border-default)` (standard) or `2px solid var(--border-default)` (inputs).
+- Border radius: use the `--radius-*` scale (`--radius-lg` = 10px is the most common).
+- Transitions: `var(--transition-fast)` (0.15s) for hover states, `var(--transition-base)` (0.2s) for inputs/focus.
 
 ---
 

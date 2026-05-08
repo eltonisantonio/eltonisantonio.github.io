@@ -1,0 +1,153 @@
+// ─── Primitive palette ───────────────────────────────────────────────────────
+// Raw values — never reference these directly in component styles.
+// Use semantic tokens instead.
+
+:root {
+  // Brand green
+  --green-900: #013320;
+  --green-800: #024f2b;
+  --green-700: #036238;
+  --green-600: #0a7a46;
+
+  // Accent (olive-green)
+  --olive-500: #739630;
+  --olive-400: #8aad38;
+
+  // Status
+  --emerald-500: #1e8449;
+  --amber-500: #d68910;
+  --red-500: #c0392b;
+  --blue-500: #2471a3;
+
+  // Module accent dots
+  --module-adm: #739630;
+  --module-industry: #2ecc71;
+  --module-quarterly: #f39c12;
+  --module-semiannual: #e74c3c;
+  --module-annual: #9b59b6;
+
+  // Neutral (green-tinted grays, extracted from PoC palette)
+  --neutral-50: #f5f7f5;
+  --neutral-100: #eef2ee;
+  --neutral-200: #d5e0d5;
+  --neutral-400: #8a9e8a;
+  --neutral-600: #4a604a;
+  --neutral-900: #1a2e1a;
+}
+
+// ─── Semantic tokens — light (default) ───────────────────────────────────────
+
+:root {
+  // Backgrounds
+  --bg-body: #f5f7f5;
+  --bg-surface: #ffffff;
+  --bg-surface-raised: #ffffff;
+  --bg-muted: #eef2ee;
+  --bg-sidebar: #024f2b;
+
+  // Text
+  --text-primary: #1a2e1a;
+  --text-secondary: #4a604a;
+  --text-tertiary: #8a9e8a;
+  --text-on-dark: #ffffff;
+
+  // Border
+  --border-default: #d5e0d5;
+  --border-strong: #4a604a;
+
+  // Brand
+  --brand-primary: #024f2b;
+  --brand-primary-hover: #036238;
+  --brand-accent: #739630;
+  --brand-accent-hover: #8aad38;
+
+  // Status
+  --color-success: #1e8449;
+  --color-warning: #d68910;
+  --color-danger: #c0392b;
+  --color-info: #2471a3;
+
+  // Badge backgrounds — 10% tint via hex alpha (#rrggbbaa, 1a ≈ 10%)
+  --badge-success-bg: #1e84491a;
+  --badge-warning-bg: #d689101a;
+  --badge-danger-bg: #c0392b1a;
+  --badge-info-bg: #2471a31a;
+  --badge-neutral-bg: #eef2ee;
+
+  // Danger surface (for banners/alerts)
+  --surface-danger: #fdf2f0;
+  --border-danger: #f5c6c2;
+
+  // Shadows — #rrggbbaa: 14 ≈ 8%, 33 ≈ 20%, 4d ≈ 30%
+  --shadow-card: 0 2px 12px #024f2b14;
+  --shadow-modal: 0 20px 60px #00000033;
+  --shadow-login: 0 24px 60px #0000004d;
+
+  // Shape
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  // Typography
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --font-size-base: 14px;
+
+  // Transitions
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+
+  // Layout
+  --sidebar-w: 220px;
+}
+
+// ─── Semantic tokens — dark ───────────────────────────────────────────────────
+// Applied by OS preference OR by [data-theme="dark"] on <html> (manual toggle).
+// :not([data-theme="light"]) prevents the media query from overriding a manual
+// light-mode selection.
+
+@mixin dark-tokens {
+  --bg-body: #0d1a0d;
+  --bg-surface: #152015;
+  --bg-surface-raised: #1c2e1c;
+  --bg-muted: #1c2e1c;
+  --bg-sidebar: #013320;
+
+  --text-primary: #e2ece2;
+  --text-secondary: #93b093;
+  --text-tertiary: #5a7a5a;
+
+  --border-default: #253a25;
+  --border-strong: #4a6e4a;
+
+  --brand-primary: #2e9e5e;
+  --brand-primary-hover: #0a7a46;
+
+  // Badge tints — 18% tint (2e ≈ 18%)
+  --badge-success-bg: #1e84492e;
+  --badge-warning-bg: #d689102e;
+  --badge-danger-bg: #c0392b2e;
+  --badge-info-bg: #2471a32e;
+  --badge-neutral-bg: #1c2e1c;
+
+  --surface-danger: #2a1510;
+  --border-danger: #5a2020;
+
+  // Shadows are stronger on dark backgrounds — 66 ≈ 40%, 99 ≈ 60%
+  --shadow-card: 0 2px 12px #00000066;
+  --shadow-modal: 0 20px 60px #00000099;
+  --shadow-login: 0 24px 60px #000000b3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-tokens;
+  }
+}
+
+[data-theme='dark'] {
+  @include dark-tokens;
+}

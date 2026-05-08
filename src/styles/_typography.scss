@@ -1,0 +1,67 @@
+// Sets 1rem = 14px (87.5% of the browser default 16px).
+// The whole UI scales automatically if the user changes their browser font size.
+// Components should use rem for font sizes and em for internal spacing
+// (padding/gap relative to their own text size).
+// Font import lives in index.html for better rendering performance.
+
+html {
+  font-size: 87.5%; // 1rem = 14px
+}
+
+// ─── Type scale ───────────────────────────────────────────────────────────────
+// rem values mapped from the PoC pixel sizes (base: 14px = 1rem)
+
+.text-2xs  { font-size: 0.714rem; } // ≈ 10px
+.text-xs   { font-size: 0.786rem; } // ≈ 11px
+.text-sm   { font-size: 0.857rem; } // ≈ 12px
+.text-base { font-size: 1rem;     } // = 14px
+.text-md   { font-size: 1.071rem; } // ≈ 15px
+.text-lg   { font-size: 1.286rem; } // ≈ 18px
+.text-xl   { font-size: 1.571rem; } // ≈ 22px
+.text-2xl  { font-size: 1.857rem; } // ≈ 26px
+.text-3xl  { font-size: 2rem;     } // ≈ 28px
+
+// ─── Weight helpers ───────────────────────────────────────────────────────────
+
+.font-light    { font-weight: 300; }
+.font-regular  { font-weight: 400; }
+.font-medium   { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold     { font-weight: 700; }
+.font-black    { font-weight: 800; }
+.font-mono     { font-family: var(--font-mono); }
+
+// ─── Color helpers ────────────────────────────────────────────────────────────
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary  { color: var(--text-tertiary); }
+.text-brand     { color: var(--brand-primary); }
+.text-success   { color: var(--color-success); }
+.text-warning   { color: var(--color-warning); }
+.text-danger    { color: var(--color-danger); }
+.text-info      { color: var(--color-info); }
+
+// ─── Reusable patterns ────────────────────────────────────────────────────────
+
+// Matches PoC .page-title / .page-sub
+.page-title {
+  font-size: 1.857rem; // ≈ 26px
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: 0.929rem; // ≈ 13px
+  color: var(--text-tertiary);
+  margin-top: 0.286em; // 4px relative to its own font size
+}
+
+// Small uppercase labels — table headers, card titles, stat labels
+.label-caps {
+  font-size: 0.786rem; // ≈ 11px
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
