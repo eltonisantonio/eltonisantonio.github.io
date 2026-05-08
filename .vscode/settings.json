@@ -10,6 +10,11 @@
       "name": "type",
       "base": "typescript-def",
       "color": "blue-300",
+    },
+    {
+      "name": "const-file",
+      "base": "lib",
+      "color": "blue-gray-500",
     }
   ],
   "material-icon-theme.files.associations": {
@@ -18,7 +23,8 @@
     "*.interface.ts": "type",
     "*.interfaces.ts": "type",
     "*.enum.ts": "type",
-    "*.enums.ts": "type"
+    "*.enums.ts": "type",
+    "*.const.ts": "const-file",
   },
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"

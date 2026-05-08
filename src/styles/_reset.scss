@@ -105,6 +105,7 @@ select {
 // Remove spinner arrows from number inputs
 input[type='number'] {
   -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {

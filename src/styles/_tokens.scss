@@ -142,12 +142,12 @@
   --shadow-login: 0 24px 60px #000000b3;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    @include dark-tokens;
-  }
-}
+// @media (prefers-color-scheme: dark) {
+//   :root:not([data-theme='light']) {
+//     @include dark-tokens;
+//   }
+// }
 
-[data-theme='dark'] {
-  @include dark-tokens;
-}
+// [data-theme='dark'] {
+//   @include dark-tokens;
+// }
