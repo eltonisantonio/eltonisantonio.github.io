@@ -1,0 +1,26 @@
+{
+  "material-icon-theme.folders.associations": {
+    "features": "container",
+    "styles": "sass",
+    "abstracts": "class",
+    "user": "admin"
+  },
+  "material-icon-theme.files.customClones": [
+    {
+      "name": "type",
+      "base": "typescript-def",
+      "color": "blue-300",
+    }
+  ],
+  "material-icon-theme.files.associations": {
+    "*.type.ts": "type",
+    "*.types.ts": "type",
+    "*.interface.ts": "type",
+    "*.interfaces.ts": "type",
+    "*.enum.ts": "type",
+    "*.enums.ts": "type"
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  }
+}
