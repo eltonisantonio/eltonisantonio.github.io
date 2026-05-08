@@ -18,6 +18,7 @@ The `./src` project is the **ground-up rebuild** in Angular — cleaner, testabl
 | Language | TypeScript 5.9 |
 | BaaS | Supabase (PostgreSQL + Auth + Realtime + RLS) |
 | Styling | Custom SCSS (replicate the PoC's visual design) |
+| Icons | Lucide (`lucide-angular` — official Angular package) |
 | Formatting | Prettier (`.prettierrc` at root) |
 | Testing | Vitest |
 
@@ -182,6 +183,7 @@ npm test           # vitest — runs tests
 - **Interfaces vs types**: `interface IName` for typing API response data (lives in `core/interfaces/`); `type` for internal application types such as unions, enums, and utility types (lives in `core/types/`)
 - **No NgModules**: standalone components only
 - **No obvious comments**: only comment when the *why* is non-obvious
+- **Icons**: use `lucide-angular` for all icons — no other icon library
 - **Prettier**: every file must pass Prettier before committing
 
 ---
