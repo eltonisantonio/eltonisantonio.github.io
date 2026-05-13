@@ -1103,6 +1103,9 @@ function saveDB(d) {
   });
 }
 
+// Carrega usuários do Firebase antes do login para popular o select
+function preCarregarUsuarios() {}
+
 function iniciarRealtimeFirebase() {
   if (unsubscribeFirebase) unsubscribeFirebase();
   unsubscribeFirebase = DB_REF.onSnapshot(doc => {
@@ -1178,10 +1181,12 @@ function selectLoginTab(tab) {
   document.getElementById('form-estrutura').style.display = tab === 'estrutura' ? 'block' : 'none';
   document.getElementById('form-lancamento').style.display = tab === 'lancamento' ? 'block' : 'none';
   document.getElementById('login-error').style.display = 'none';
+  if (tab === 'lancamento') preCarregarUsuarios();
 }
 
 function popularSelectUsuarios() {
   const sel = document.getElementById('input-usuario');
+  if (!sel) return;
   sel.innerHTML = '<option value="">Selecione...</option>';
   (db.usuarios || []).forEach(u => {
     sel.innerHTML += `<option value="${u.id}">${u.nome}</option>`;
@@ -1194,15 +1199,31 @@ function doLogin() {
 
   if (loginTab === 'estrutura') {
     const senha = document.getElementById('input-master').value;
-    if (!db.senhas.master) {
-      // Sem senha configurada — primeiro acesso
-      if (!senha) { err.textContent = 'Configure uma senha master.'; err.style.display = 'block'; return; }
-      db.senhas.master = senha;
-      saveDB(db);
-    } else if (senha !== db.senhas.master) {
-      err.textContent = 'Senha incorreta.'; err.style.display = 'block'; return;
+    if (!senha) { err.textContent = 'Digite a senha master.'; err.style.display = 'block'; return; }
+    // Se tem senha local, validar
+    if (db.senhas?.master) {
+      if (senha === db.senhas.master) { entrarComoMaster(); return; }
+      // Senha local falhou — tentar Firebase (pode estar desatualizada)
+      DB_REF.get().then(doc => {
+        try {
+          const d = JSON.parse(doc.data().dados);
+          if (d?.senhas?.master) db.senhas.master = d.senhas.master;
+        } catch(e) {}
+        if (senha === db.senhas.master) { entrarComoMaster(); }
+        else { err.textContent = 'Senha incorreta.'; err.style.display = 'block'; }
+      }).catch(() => { err.textContent = 'Senha incorreta.'; err.style.display = 'block'; });
+    } else {
+      // Sem senha local — buscar do Firebase
+      DB_REF.get().then(doc => {
+        try {
+          const d = JSON.parse(doc.data().dados);
+          if (d?.senhas?.master) db.senhas = d.senhas;
+        } catch(e) {}
+        if (!db.senhas?.master || senha === db.senhas.master) { entrarComoMaster(); }
+        else { err.textContent = 'Senha incorreta.'; err.style.display = 'block'; }
+      }).catch(() => { err.textContent = 'Erro de conexão.'; err.style.display = 'block'; });
     }
-    currentUser = { tipo: 'master', nome: 'Administrador', modulos: ['adm','industria','trimestral','semestral','anual'], setores: 'todos' };
+    return;
   } else {
     const usrId = document.getElementById('input-usuario').value;
     const senha = document.getElementById('input-senha-user').value;
@@ -1210,10 +1231,16 @@ function doLogin() {
     const usr = db.usuarios.find(u => u.id == usrId);
     if (!usr || senha !== usr.senha) { err.textContent = 'Senha incorreta.'; err.style.display = 'block'; return; }
     currentUser = { tipo: 'lancamento', nome: usr.nome, modulos: usr.modulos || [], paginas: usr.paginas || [], setores: usr.setores || [] };
+    entrarNoSistema();
   }
+}
 
-  // Entrar no sistema
-  document.getElementById('login-screen').style.display = 'none';
+function entrarComoMaster() {
+  currentUser = { tipo: 'master', nome: 'Administrador', modulos: ['adm','industria','trimestral','semestral','anual'], setores: 'todos' };
+  entrarNoSistema();
+}
+
+function entrarNoSistema() {
   document.getElementById('app').classList.add('visible');
   document.getElementById('user-role-label').textContent = currentUser.tipo === 'master' ? 'Administrador' : 'Lançamento';
   document.getElementById('user-name-label').textContent = currentUser.nome;
