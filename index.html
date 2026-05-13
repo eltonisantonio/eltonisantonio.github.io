@@ -1112,19 +1112,26 @@ function iniciarRealtimeFirebase() {
     if (!doc.exists) return;
     try {
       const fbData = migrateDB(JSON.parse(doc.data().dados));
-      // Mesclar com local (não sobrescrever resultados locais não salvos)
+      // Mesclar resultados: Firebase vence por padrão
+      // Local só vence se tiver timestamp mais recente (dado não salvo ainda)
       const localRes = db.resultados || {};
       const fbRes = fbData.resultados || {};
-      const merged = {};
-      Object.keys(fbRes).forEach(pkey => {
-        merged[pkey] = Object.assign({}, fbRes[pkey]);
-      });
-      Object.keys(localRes).forEach(pkey => {
-        if (!merged[pkey]) merged[pkey] = {};
-        Object.keys(localRes[pkey]).forEach(setor => {
-          merged[pkey][setor] = localRes[pkey][setor];
+      const localUpdated = db._resultados_updated || 0;
+      const fbUpdated = fbData._resultados_updated || 0;
+      let merged;
+      if (localUpdated > fbUpdated) {
+        // Local mais recente — mesclar local sobre Firebase
+        merged = Object.assign({}, fbRes);
+        Object.keys(localRes).forEach(pkey => {
+          if (!merged[pkey]) merged[pkey] = {};
+          Object.keys(localRes[pkey]).forEach(setor => {
+            merged[pkey][setor] = localRes[pkey][setor];
+          });
         });
-      });
+      } else {
+        // Firebase mais recente — usar Firebase direto
+        merged = fbRes;
+      }
       fbData.resultados = merged;
       fbData.faturamento = Object.assign({}, fbData.faturamento || {}, db.faturamento || {});
       // Mesclar s5 — usar versão mais recente pelo timestamp
@@ -1803,6 +1810,7 @@ function limparResultadoInd(indId) {
 }
 
 function salvarResultados() {
+  db._resultados_updated = Date.now();
   saveDB(db);
   logAcesso('Salvamento', `${currentSetor} — ${getPeriodLabel()}`);
   const badge = document.getElementById('unsaved-badge');
