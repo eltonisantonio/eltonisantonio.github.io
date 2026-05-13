@@ -1740,7 +1740,7 @@ function renderLancamento() {
   tableHtml += `<div style="display:flex;gap:10px;margin-top:16px;align-items:center;">
     <button class="btn btn-primary" onclick="salvarResultados()">Salvar</button>
     <button class="btn btn-ghost" onclick="limparTudoSetor()">Limpar tudo</button>
-    <span id="unsaved-badge" style="display:none;font-size:12px;font-weight:600;color:var(--amber);display:flex;align-items:center;gap:5px;">
+    <span id="unsaved-badge" style="display:none;font-size:12px;font-weight:600;color:var(--amber);align-items:center;gap:5px;">
       <span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;animation:pulse 1.2s infinite;"></span>
       Não salvo
     </span>
@@ -1765,7 +1765,6 @@ function salvarResultadoInd(indId, valor) {
   // Mostrar badge de não salvo
   const badge = document.getElementById('unsaved-badge');
   if (badge) badge.style.display = 'flex';
-  // Não re-renderizar enquanto campo está com foco (permite digitar vírgula/decimal)
   const active = document.activeElement;
   if (active && active.dataset && active.dataset.indId) {
     renderTotalLancamento();
