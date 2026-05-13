@@ -1181,7 +1181,22 @@ function selectLoginTab(tab) {
   document.getElementById('form-estrutura').style.display = tab === 'estrutura' ? 'block' : 'none';
   document.getElementById('form-lancamento').style.display = tab === 'lancamento' ? 'block' : 'none';
   document.getElementById('login-error').style.display = 'none';
-  if (tab === 'lancamento') preCarregarUsuarios();
+  // Ao abrir aba lançamento, buscar usuários do Firebase se o select estiver vazio
+  if (tab === 'lancamento' && (db.usuarios || []).length === 0) {
+    const sel = document.getElementById('input-usuario');
+    if (sel) sel.innerHTML = '<option value="">Carregando...</option>';
+    DB_REF.get().then(doc => {
+      if (!doc.exists) return;
+      const d = JSON.parse(doc.data().dados);
+      if (d.usuarios?.length > 0) {
+        db.usuarios = d.usuarios; // só usuarios, nada mais
+        popularSelectUsuarios();
+      }
+    }).catch(() => {
+      const sel = document.getElementById('input-usuario');
+      if (sel) sel.innerHTML = '<option value="">Erro ao carregar</option>';
+    });
+  }
 }
 
 function popularSelectUsuarios() {
@@ -1241,6 +1256,7 @@ function entrarComoMaster() {
 }
 
 function entrarNoSistema() {
+  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('user-role-label').textContent = currentUser.tipo === 'master' ? 'Administrador' : 'Lançamento';
   document.getElementById('user-name-label').textContent = currentUser.nome;
