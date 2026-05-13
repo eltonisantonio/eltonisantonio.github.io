@@ -1013,6 +1013,7 @@ function defaultDB() {
 
 function migrateDB(d) {
   if (!d.faturamento) d.faturamento = {};
+  if (!d.periodo || !d.periodo.mes || !d.periodo.ano) d.periodo = defaultDB().periodo;
   if (!d.senhas) d.senhas = { master: '' };
   if (!d.senhas.master) d.senhas.master = '';
   if (!d.usuarios) d.usuarios = [];
@@ -1062,6 +1063,9 @@ function loadDB() {
 //  FIREBASE — TEMPO REAL (onSnapshot)
 // ════════════════════════════════════════════
 function saveDB(d) {
+  // Garantir que o db local sempre tem os indicadores mais completos
+  const migrated = migrateDB(JSON.parse(JSON.stringify(d)));
+  Object.assign(d, { indicadores: migrated.indicadores, setores: migrated.setores });
   localStorage.setItem(DB_KEY, JSON.stringify(d));
   if (!DB_REF) return;
   // Mesclar com Firebase antes de salvar — evita sobrescrever dados de outros
@@ -1142,7 +1146,10 @@ function iniciarRealtimeFirebase() {
       const activePage = document.querySelector('.page.active');
       if (activePage) {
         const pageId = activePage.id.replace('page-','');
-        if (pageId === 'lancamento') { renderSetorChips(); carregarFaturamento(); }
+        // Atualizar badge de período
+        const badge = document.getElementById('periodo-badge-lancamento');
+        if (badge) badge.textContent = getPeriodLabel();
+        if (pageId === 'lancamento') { renderSetorChips(); carregarFaturamento(); renderLancamento(); }
         if (pageId === 'gestores') renderGestores();
         if (pageId === 'historico') initHistorico();
       }
