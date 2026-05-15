@@ -1820,8 +1820,15 @@ function salvarResultados() {
 function limparTudoSetor() {
   if (!confirm(`Limpar todos os resultados de ${currentSetor}?`)) return;
   const pkey = getPeriodKey();
-  const rKey = `${currentModule}||${currentSetor}||${currentTurno || ''}${currentFuncao?'||'+currentFuncao:''}`;
-  if (db.resultados[pkey]) delete db.resultados[pkey][rKey];
+  if (db.resultados[pkey]) {
+    // Remover todas as rKeys do setor atual (todos os turnos)
+    Object.keys(db.resultados[pkey]).forEach(rKey => {
+      if (rKey.startsWith(`${currentModule}||${currentSetor}||`)) {
+        delete db.resultados[pkey][rKey];
+      }
+    });
+  }
+  db._resultados_updated = Date.now();
   saveDB(db);
   renderLancamento();
   toast('Resultados limpos!');
